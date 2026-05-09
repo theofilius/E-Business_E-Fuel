@@ -1,0 +1,89 @@
+const mongoose = require('mongoose');
+
+const orderSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'User ID is required'],
+    },
+    driverId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Driver',
+      default: null,
+    },
+    fuelType: {
+      type: String,
+      required: [true, 'Fuel type is required'],
+      enum: {
+        values: ['Pertalite', 'Pertamax', 'Pertamax Turbo', 'Solar', 'Dexlite'],
+        message: '{VALUE} is not a valid fuel type',
+      },
+    },
+    liters: {
+      type: Number,
+      required: [true, 'Number of liters is required'],
+      min: [1, 'Minimum order is 1 liter'],
+      max: [200, 'Maximum order is 200 liters'],
+    },
+    pricePerLiter: {
+      type: Number,
+      required: [true, 'Price per liter is required'],
+    },
+    totalPrice: {
+      type: Number,
+      required: [true, 'Total price is required'],
+    },
+    serviceFee: {
+      type: Number,
+      default: 5000, // Rp 5.000 service fee
+    },
+    location: {
+      address: {
+        type: String,
+        required: [true, 'Delivery address is required'],
+      },
+      coordinates: {
+        lat: { type: Number, required: true },
+        lng: { type: Number, required: true },
+      },
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'on_the_way', 'arrived', 'fueling', 'delivered', 'cancelled'],
+      default: 'pending',
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['cash', 'ewallet', 'bank_transfer'],
+      default: 'cash',
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded'],
+      default: 'pending',
+    },
+    notes: {
+      type: String,
+      maxlength: [200, 'Notes cannot exceed 200 characters'],
+      default: '',
+    },
+    estimatedArrival: {
+      type: Date,
+      default: null,
+    },
+    deliveredAt: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// Index for faster user order queries
+orderSchema.index({ userId: 1, createdAt: -1 });
+orderSchema.index({ driverId: 1, status: 1 });
+
+module.exports = mongoose.model('Order', orderSchema);
