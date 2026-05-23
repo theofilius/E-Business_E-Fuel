@@ -61,6 +61,16 @@ export const Navbar = () => {
                   Pesan Bensin
                 </Text>
               </TouchableOpacity>
+              {user && (
+                <TouchableOpacity
+                  style={styles.navLink}
+                  onPress={() => router.push('/(tabs)/orders' as any)}
+                >
+                  <Text style={[styles.navLinkText, isActive('orders') && styles.activeText]}>
+                    Pesanan Saya
+                  </Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
                 <Text style={styles.navLinkText}>Tentang E-FUEL</Text>
               </TouchableOpacity>
