@@ -131,10 +131,26 @@ const updateServiceFee = async (req, res, next) => {
   }
 };
 
+// @desc    Get all drivers
+// @route   GET /api/admin/drivers
+// @access  Private/Admin
+const getAllDrivers = async (req, res, next) => {
+  try {
+    const drivers = await User.find({ role: 'driver' }).select('-password');
+    res.json({
+      success: true,
+      data: drivers,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getStats,
   getAllOrders,
   getAdminFuelPrices,
   updateFuelPrice,
   updateServiceFee,
+  getAllDrivers,
 };

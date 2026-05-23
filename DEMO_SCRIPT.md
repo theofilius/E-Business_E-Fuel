@@ -43,14 +43,16 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
   - *Aksi Opsional*: Tunjukkan UI perubahan status pesanan pada Driver Dashboard (menjadi *Accepted*, *On The Way*, dsb).
   - *Aksi Opsional*: Kembali sebentar ke tab Customer untuk menunjukkan bahwa pesanan telah diterima (Status *Accepted* oleh driver).
 
-### 4. Skenario Admin: Mengelola Platform (1 Menit)
+### 4. Skenario Admin: Mengelola Platform (2 Menit)
 *Aksi: Buka browser lain / incognito baru, login sebagai Admin.*
 - **Akun**: `admin@efuel.com` / `admin123`
-- **Jelaskan**: "Terakhir, inilah layar kontrol Admin untuk mengelola keseluruhan ekosistem E-Fuel."
+- **Jelaskan**: "Terakhir, inilah layar kontrol Admin untuk mengelola keseluruhan ekosistem E-Fuel. Layoutnya terdiri dari Sidebar Navigation di kiri untuk berbagai modul."
 - **Demo Interaksi**:
-  - Tunjukkan statistik **Total Revenue** dan **Total Orders** yang berubah karena pesanan Customer tadi.
-  - Tunjukkan daftar pesanan masuk di tabel **Pesanan Terbaru**.
-  - Edit harga BBM: Klik ikon pensil pada salah satu produk BBM (misal IGNITE), ubah harga menjadi nominal lain, lalu simpan.
+  - **Dashboard**: Tunjukkan Overview statistik (Revenue, Order Masuk).
+  - **Kelola Order**: Klik menu ini di sidebar. Tunjukkan filter tab (Baru, Diantar, Selesai) untuk menyortir pesanan.
+  - **Kelola Driver**: Tunjukkan daftar driver yang aktif beserta inisial avatarnya. Jelaskan bahwa admin bisa memantau rating dan pesanan.
+  - **Laporan & Analitik**: Perlihatkan bar chart custom yang menampilkan dominasi bahan bakar terlaris (misal BLAZE 95).
+  - **Pengaturan Cabang**: Tunjukkan form informasi area layanan dan tabel harga BBM di bawahnya. Anda dapat mengedit harga di sini jika diinginkan.
 
 ### 5. Penutup (1 Menit)
 - **Jelaskan**: "Dengan E-Fuel, proses dari pelanggan memesan, kurir/driver mengirimkan, hingga admin memantau seluruh transaksi dapat berjalan lancar dalam satu ekosistem terpadu."

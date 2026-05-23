@@ -1,222 +1,79 @@
-# IMPLEMENTATION PLAN — E-Fuel Final Project
+# Implementasi Admin Dashboard Sesuai Figma
 
-> Deadline: 2 hari (25 Mei 2026)  
-> Strategi: Incremental improvement, TIDAK rewrite dari nol  
-> Fokus: Demo end-to-end yang polished
+Memperbarui arsitektur routing dan desain UI/UX pada fitur Dashboard Admin agar menyerupai Figma Prototype yang dilampirkan (Frame 3084 - 3088). Tujuannya untuk memberikan *experience* yang mulus dan clean sesuai standar demo, tanpa mengganggu existing code dari flow Customer maupun Driver.
 
----
-
-## 1. Mapping Figma Page → React Route
-
-| Figma Page | Route | File | Status |
-|-----------|-------|------|--------|
-| Onboarding/Landing | `/(onboarding)` | `app/(onboarding)/index.tsx` | ✅ Sudah ada |
-| Login | `/(auth)/login` | `app/(auth)/login.tsx` | ✅ Sudah ada |
-| Register | `/(auth)/register` | `app/(auth)/register.tsx` | ✅ Sudah ada |
-| Home / Pesan Bensin | `/(tabs)/` | `app/(tabs)/index.tsx` | ✅ Sudah ada |
-| Explore | `/(tabs)/explore` | `app/(tabs)/explore.tsx` | ✅ Sudah ada |
-| Pesanan Saya | `/(tabs)/orders` | `app/(tabs)/orders.tsx` | ✅ Sudah ada |
-| Profile | `/(tabs)/profile` | `app/(tabs)/profile.tsx` | ✅ Sudah ada |
-| Order Tracking | `/order/[id]` | `app/order/[id].tsx` | ✅ Sudah ada |
-| Payment | `/order/payment` | `app/order/payment.tsx` | ✅ Sudah ada |
-| Driver Dashboard | `/(driver)` | `app/(driver)/index.tsx` | ✅ Sudah ada |
-| Admin Dashboard | `/(admin)` | `app/(admin)/index.tsx` | ✅ Sudah ada |
+## User Review Required
 
 > [!IMPORTANT]
-> Semua routes utama sudah ada. Tidak perlu membuat route baru.
+> Mengubah struktur folder di `app/(admin)/` yang saat ini hanya berupa 1 halaman (`index.tsx`), menjadi Layout khusus (`_layout.tsx`) dengan nested routing untuk Sidebar Menu (Dashboard, Orders, Drivers, Analytics, Settings). 
+> Saya juga akan menambahkan Endpoint API `GET /api/admin/drivers` kecil di sisi Backend (hanya membaca tabel `User` dengan role `driver`) agar menu Kelola Driver bisa menggunakan data nyata tanpa harus mock. Apakah ini diizinkan? Jika tidak, saya akan murni mock data driver di frontend.
+
+## Proposed Changes
 
 ---
 
-## 2. Mapping Figma Component → React Component
+### Backend (Admin Controllers)
 
-| Figma Component | React Component | File | Status |
-|----------------|----------------|------|--------|
-| Button (Primary/Outline) | `<Button>` | `components/ui/Button.tsx` | ✅ Ada |
-| Text Input | `<Input>` | `components/ui/Input.tsx` | ✅ Ada |
-| Card Container | `<Card>` | `components/ui/Card.tsx` | ✅ Ada |
-| Status Badge | `<Badge>` | `components/ui/Badge.tsx` | ✅ Ada |
-| Top Navigation Bar | `<Navbar>` | `components/ui/Navbar.tsx` | ✅ Ada |
-| Map Picker (Leaflet) | `<MapPicker>` | `components/MapPicker.web.tsx` | ✅ Ada |
-| Tracking Map | `<TrackingMap>` | `components/TrackingMap.web.tsx` | ✅ Ada |
-| Themed Text | `<ThemedText>` | `components/themed-text.tsx` | ✅ Ada |
-| Themed View | `<ThemedView>` | `components/themed-view.tsx` | ✅ Ada |
-| Collapsible | `<Collapsible>` | `components/ui/collapsible.tsx` | ✅ Ada |
+Penambahan kecil *non-breaking* untuk mensupport halaman "Kelola Driver".
+
+#### [MODIFY] [adminController.js](file:///Users/theofilius/e-fuel/backend/src/controllers/adminController.js)
+- Menambahkan fungsi `getAllDrivers` yang melakukan query ke MongoDB (`User.find({ role: 'driver' })`) untuk mengambil list driver, rating (mock default jika tidak ada), dan status (dapat difilter dari state active order).
+
+#### [MODIFY] [adminRoutes.js](file:///Users/theofilius/e-fuel/backend/src/routes/adminRoutes.js)
+- Me-register route `GET /drivers` ke controller `getAllDrivers`.
 
 ---
 
-## 3. File Existing yang Sudah Sesuai
+### Frontend (Admin Dashboard System)
 
-### ✅ Tidak Perlu Diubah (atau perubahan minimal)
-| File | Alasan |
-|------|--------|
-| `constants/theme.ts` | Design tokens lengkap, match Figma colors |
-| `types/index.ts` | Type definitions lengkap (User, Order, FuelProduct, etc.) |
-| `store/useAuthStore.ts` | Auth state management lengkap |
-| `store/useOrderStore.ts` | Order state management lengkap |
-| `store/useDriverStore.ts` | Driver state management lengkap |
-| `services/api.ts` | API client configured |
-| `services/authService.ts` | Auth API calls |
-| `services/orderService.ts` | Order API calls |
-| `services/paymentService.ts` | Payment API calls |
-| `services/socket.ts` | Socket.io client |
-| `utils/geocode.ts` | Reverse geocoding utility |
-| `utils/storage.ts` | Storage abstraction |
-| `app/_layout.tsx` | Root layout + role-based routing |
-| `app/index.tsx` | Root redirect logic |
-| `app/(auth)/_layout.tsx` | Auth layout |
-| `app/(tabs)/_layout.tsx` | Tabs layout |
-| `app/(driver)/_layout.tsx` | Driver layout |
-| `app/(admin)/_layout.tsx` | Admin layout |
-| Backend: semua files di `backend/src/` | Backend sudah complete |
+Melakukan refactor pada struktur route `app/(admin)` menjadi stack/sidebar-based navigation dan membuat UI komponen baru.
 
----
+#### [MODIFY] [_layout.tsx](file:///Users/theofilius/e-fuel/frontend/app/(admin)/_layout.tsx)
+- Diubah menggunakan struktur custom layout (Sidebar dan Content Wrapper) dibandingkan `Stack` biasa.
+- Mengimplementasikan layout global:
+  - Sidebar tetap (fixed left)
+  - Logo E-Fuel Admin
+  - Daftar menu sidebar navigasi: Dashboard, Kelola Order, Kelola Driver, Laporan & Analitik, Pengaturan Cabang.
+  - Header atas dengan profil & ikon lonceng notifikasi.
 
-## 4. File yang Perlu Diedit (Perbaikan Visual/Fungsional)
+#### [MODIFY] [index.tsx](file:///Users/theofilius/e-fuel/frontend/app/(admin)/index.tsx)
+- Route ini akan menjadi **"Halaman 1 — Dashboard / Overview Hari Ini"**.
+- Menampilkan *Stat Cards*: Order Masuk, Sedang Diantar, Revenue, Rating.
+- Menampilkan Order Terbaru (maks. 5) dan Status Driver (Top 5).
 
-### Priority 1 — Critical untuk Demo
+#### [NEW] [orders.tsx](file:///Users/theofilius/e-fuel/frontend/app/(admin)/orders.tsx)
+- Route **"Halaman 2 — Kelola Order"**.
+- Menggunakan endpoint `/api/admin/orders`.
+- Menambahkan Filter Tab UI (Semua, Baru, Diantar, Selesai, Batal) yang memanipulasi *state filtering* di frontend secara langsung (karena data API sudah tersedia/paginated).
+- Menampilkan Tabel Order dengan Badge/Pill custom sesuai Figma.
 
-#### [EDIT] `app/(onboarding)/index.tsx`
-- **Masalah**: Hero image path hardcoded ke path dari conversation lain, mungkin tidak ada
-- **Solusi**: Ganti dengan gambar yang tersedia atau generate baru, atau gunakan gradient/solid color sebagai fallback
-- **Estimasi**: 30 menit
+#### [NEW] [drivers.tsx](file:///Users/theofilius/e-fuel/frontend/app/(admin)/drivers.tsx)
+- Route **"Halaman 3 — Kelola Driver"**.
+- Menampilkan grid kartu driver.
+- Menggunakan inisial avatar dari lokal / `ui-avatars.com` (tergantung internet).
+- Menampilkan Info: Kendaraan, Status (Sibuk/Aktif/Offline), Rating, Total Order.
+- Tombol aksi "Profil" dan "Nonaktif" dengan `Alert` Segera Hadir (Aman untuk demo).
 
-#### [EDIT] `components/ui/Navbar.tsx`
-- **Masalah**: Nav links "Cara Kerja", "Area Layanan", "FAQs" tidak navigasi, cart/notif badge hardcoded "0"
-- **Solusi**: 
-  - Scroll ke section di onboarding page untuk "Cara Kerja"
-  - Sembunyikan link yang belum ada halaman, atau arahkan ke anchor
-  - Sembunyikan cart badge (tidak relevan untuk fuel delivery)
-- **Estimasi**: 45 menit
+#### [NEW] [analytics.tsx](file:///Users/theofilius/e-fuel/frontend/app/(admin)/analytics.tsx)
+- Route **"Halaman 4 — Laporan & Analitik"**.
+- Stat blocks untuk: Revenue minggu ini, BBM Terlaris, Total order, dsb (dihitung dari frontend order data / stats backend).
+- Membuat "Grafik / Bar" order BBM secara custom menggunakan `View` dan `Width %` agar menghindari dependency tambahan chart library.
+- Menampilkan tabel Performa Driver Bulanan (mockup safe).
 
-#### [EDIT] `app/(tabs)/profile.tsx`
-- **Masalah**: Menu items "Edit Profile", "Payment Methods", "Help & Support" belum navigasi
-- **Solusi**: Minimal buat placeholder screens, atau jadikan non-clickable dengan "Coming Soon" label
-- **Estimasi**: 30 menit
-
-#### [EDIT] `app/(tabs)/index.tsx` (Home)
-- **Masalah**: Explore tab terdaftar tapi tersembunyi dari navigasi web
-- **Solusi**: Pastikan accessible dari navbar atau tambahkan di tab layout web
-- **Estimasi**: 15 menit
-
-### Priority 2 — Visual Polish
-
-#### [EDIT] Multiple files — Font consistency
-- **Masalah**: Tidak ada Google Font (Inter/Roboto) yang di-load
-- **Solusi**: Tambah `expo-font` loading untuk Inter atau system font declaration
-- **Estimasi**: 30 menit
-
-#### [EDIT] `app/(onboarding)/index.tsx`
-- **Masalah**: Product cards menampilkan "Rp /Liter" tanpa harga actual
-- **Solusi**: Fetch harga dari API atau hardcode harga demo
-- **Estimasi**: 20 menit
-
-#### [EDIT] `app/(admin)/index.tsx`
-- **Masalah**: Admin dashboard agak basic, beberapa styling bisa dipoles
-- **Solusi**: Perbaiki layout stats cards, tambah border visual
-- **Estimasi**: 30 menit
-
-### Priority 3 — Nice to Have
-
-#### [NEW] `app/(tabs)/faq.tsx` (Opsional)
-- Halaman FAQ sederhana
-- **Estimasi**: 1 jam
-
-#### [EDIT] `app/(auth)/login.tsx`
-- Google login button bisa di-hide atau diberi "Coming Soon" toast
-- **Estimasi**: 15 menit
+#### [NEW] [settings.tsx](file:///Users/theofilius/e-fuel/frontend/app/(admin)/settings.tsx)
+- Route **"Halaman 5 — Pengaturan Cabang"**.
+- Memindahkan form "Kelola Harga BBM" dari `index.tsx` yang lama ke sini, digabung dengan Info Cabang.
+- Info Cabang dapat dibuat `disabled` form (Demo safe) yang berisi Nama Cabang, Jam Operasional, Maks Radius Pengiriman, Area Layanan.
 
 ---
 
-## 5. File yang TIDAK Perlu Dibuat
+## Verification Plan
 
-> [!WARNING]
-> Jangan buang waktu untuk fitur berikut — bukan prioritas demo:
+### Automated / API Tests
+- Mengakses masing-masing `/api/admin/orders`, `/api/admin/stats`, dan `/api/admin/drivers` untuk memvalidasi respon data (bebas *Internal Server Error*).
 
-- ❌ Halaman "Tentang Kami" terpisah
-- ❌ Halaman "Area Layanan" dengan peta
-- ❌ Notification system
-- ❌ Google OAuth integration
-- ❌ Forgot password flow
-- ❌ Rating/review system
-- ❌ Order receipt/invoice PDF
-- ❌ Push notification
-- ❌ Chat driver-customer
-
----
-
-## 6. Strategi Implementasi (Tanpa Rewrite)
-
-### Prinsip Utama
-1. **Preserve existing code** — Semua fitur yang sudah jalan TETAP dijaga
-2. **Incremental edits** — Hanya edit bagian spesifik yang perlu diperbaiki
-3. **No new dependencies** kecuali benar-benar diperlukan
-4. **Test after each change** — Pastikan app masih berjalan setelah setiap perubahan
-
-### Timeline Implementasi
-
-#### Hari 1 (23-24 Mei) — Fix Critical Issues
-| # | Task | Estimasi | File |
-|---|------|----------|------|
-| 1 | Fix hero image onboarding | 30 min | `(onboarding)/index.tsx` |
-| 2 | Fix navbar dead links | 45 min | `Navbar.tsx` |
-| 3 | Fix product cards pricing | 20 min | `(onboarding)/index.tsx` |
-| 4 | Fix profile menu items | 30 min | `profile.tsx` |
-| 5 | Ensure Explore accessible | 15 min | `(tabs)/_layout.tsx`, `Navbar.tsx` |
-| 6 | Test all flows end-to-end | 1 hr | - |
-
-#### Hari 2 (24-25 Mei) — Visual Polish & Demo Prep
-| # | Task | Estimasi | File |
-|---|------|----------|------|
-| 7 | Font loading (optional) | 30 min | `_layout.tsx` |
-| 8 | Admin dashboard polish | 30 min | `(admin)/index.tsx` |
-| 9 | Clean up google/forgot password buttons | 15 min | `login.tsx`, `register.tsx` |
-| 10 | Final test all 3 roles | 1 hr | - |
-| 11 | Seed demo data | 15 min | `npm run seed` |
-| 12 | Demo rehearsal | 30 min | - |
-
----
-
-## 7. Arsitektur yang TETAP Dipertahankan
-
-```
-e-fuel/
-├── backend/                    ← JANGAN UBAH
-│   └── src/
-│       ├── controllers/        (5 controllers)
-│       ├── models/             (3 models: User, Order, Driver)
-│       ├── routes/             (5 route files)
-│       ├── middleware/
-│       └── server.js
-│
-├── frontend/                   ← EDIT INCREMENTAL SAJA
-│   ├── app/
-│   │   ├── (onboarding)/       ← Edit visual
-│   │   ├── (auth)/             ← Minor cleanup
-│   │   ├── (tabs)/             ← Fix explore, profile
-│   │   ├── (driver)/           ← Sudah OK
-│   │   ├── (admin)/            ← Minor polish
-│   │   └── order/              ← Sudah OK
-│   ├── components/
-│   │   ├── ui/                 ← Edit Navbar
-│   │   ├── MapPicker.*         ← Sudah OK
-│   │   └── TrackingMap.*       ← Sudah OK
-│   ├── constants/theme.ts      ← JANGAN UBAH
-│   ├── store/                  ← JANGAN UBAH
-│   ├── services/               ← JANGAN UBAH
-│   ├── types/                  ← JANGAN UBAH
-│   └── utils/                  ← JANGAN UBAH
-│
-└── package.json                ← JANGAN UBAH
-```
-
----
-
-## 8. Risiko & Mitigasi
-
-| Risiko | Impact | Mitigasi |
-|--------|--------|----------|
-| Hero image tidak ada | Onboarding jelek | Generate image baru atau pakai gradient |
-| Backend down saat demo | Demo gagal total | Pastikan seed data + backend running |
-| MongoDB connection issue | Tidak bisa login/order | Gunakan MongoDB Atlas, test sebelum demo |
-| Leaflet map tidak load | Map picker & tracking rusak | Map sudah pakai OpenStreetMap gratis, harusnya OK |
-| Font tidak match Figma | Visual kurang polish | Gunakan system font, acceptable untuk demo |
+### Manual Verification
+1. Login dengan kredensial `admin@efuel.com` / `admin123`.
+2. Verifikasi UI layout apakah *Sidebar* statis tertancap di sisi kiri (Web).
+3. Klik tiap-tiap menu dan verifikasi *active state* berubah serta memuat halaman yang sesuai secara instan (karena arsitektur Expo Router web).
+4. Pastikan flow Order oleh *Customer -> Driver* tidak terdampak dan perubahan statusnya tercermin *real-time* (saat re-fetch) di halaman Kelola Order Admin.

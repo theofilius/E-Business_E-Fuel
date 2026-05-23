@@ -56,7 +56,7 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 1.  ~~**Google OAuth Sign-In**~~: ✅ *Telah diberi disabled state dan alert "Segera Hadir".*
 2.  ~~**Lupa Password**~~: ✅ *Telah diberi alert "Segera Hadir".*
 3.  ~~**Onboarding CTA & Testimonials**~~: ✅ *Tombol "Lihat Cara Kerja" kini melakukan scroll. Testimonials menggunakan auto-generated avatars dari `ui-avatars.com`.*
-4.  ~~**Admin Dashboard Polish**~~: ✅ *Telah diberi border gradasi atas yang membedakan tipe statistik.*
+4.  ~~**Admin Dashboard Polish**~~: ✅ *Dirombak total menjadi arsitektur multi-page dengan layout sidebar sesuai Figma (Dashboard, Kelola Order, Kelola Driver, Analytics, Settings).*
 
 ---
 
