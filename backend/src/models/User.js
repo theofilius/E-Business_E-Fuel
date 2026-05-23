@@ -30,12 +30,31 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['customer', 'admin'],
+      enum: ['customer', 'admin', 'driver'],
       default: 'customer',
     },
     avatar: {
       type: String,
       default: null,
+    },
+    // ===== Driver-only fields (used when role === 'driver') =====
+    vehicle: {
+      type: String,
+      default: null,
+    },
+    plateNumber: {
+      type: String,
+      default: null,
+    },
+    rating: {
+      type: Number,
+      default: 5,
+      min: 0,
+      max: 5,
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -45,11 +64,17 @@ const userSchema = new mongoose.Schema(
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
+  // Skip hashing if password was not changed (e.g. updating name/phone only)
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Compare entered password with hashed password

@@ -52,4 +52,16 @@ const adminOnly = (req, res, next) => {
   }
 };
 
-module.exports = { protect, adminOnly };
+// Driver only middleware
+const driverOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'driver') {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Drivers only.',
+    });
+  }
+};
+
+module.exports = { protect, adminOnly, driverOnly };

@@ -1,36 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card } from '../../components/ui/Card';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { signIn, isLoading } = useAuthStore();
-  
+  const { signIn, isSubmitting, error, clearError } = useAuthStore();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   const { width } = useWindowDimensions();
   const isDesktop = width > 1024;
-  
+
+  const validate = () => {
+    const errs: { email?: string; password?: string } = {};
+    if (!email.trim()) errs.email = 'Email wajib diisi';
+    else if (!EMAIL_REGEX.test(email.trim())) errs.email = 'Format email tidak valid';
+    if (!password) errs.password = 'Password wajib diisi';
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Email dan password wajib diisi');
-      return;
-    }
+    if (!validate()) return;
     try {
       await signIn(email, password);
       router.replace('/(tabs)');
-    } catch (err) {
-      setError('Email atau password salah');
+    } catch {
+      // server error is displayed via the store's `error`
     }
+  };
+
+  const onChangeEmail = (v: string) => {
+    setEmail(v);
+    if (fieldErrors.email) setFieldErrors((e) => ({ ...e, email: undefined }));
+    if (error) clearError();
+  };
+
+  const onChangePassword = (v: string) => {
+    setPassword(v);
+    if (fieldErrors.password) setFieldErrors((e) => ({ ...e, password: undefined }));
+    if (error) clearError();
   };
 
   const renderForm = () => (
@@ -39,32 +65,40 @@ export default function LoginScreen() {
       <Text style={styles.subtitle}>Masukkan detail akun Anda untuk melanjutkan.</Text>
 
       <View style={styles.form}>
+        {error ? (
+          <View style={styles.errorBanner}>
+            <Ionicons name="alert-circle" size={18} color={Colors.error} />
+            <Text style={styles.errorBannerText}>{error}</Text>
+          </View>
+        ) : null}
+
         <Input
           label="Email"
           placeholder="nama@email.com"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={onChangeEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          error={fieldErrors.email}
         />
         <Input
           label="Password"
           placeholder="Masukkan kata sandi"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={onChangePassword}
           isPassword
+          error={fieldErrors.password}
+          onSubmitEditing={handleLogin}
         />
-        
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <TouchableOpacity style={styles.forgotBtn}>
           <Text style={styles.forgotText}>Lupa kata sandi?</Text>
         </TouchableOpacity>
 
-        <Button 
-          title="Masuk" 
-          onPress={handleLogin} 
-          isLoading={isLoading}
+        <Button
+          title="Masuk"
+          onPress={handleLogin}
+          isLoading={isSubmitting}
           style={styles.loginBtn}
         />
 
@@ -96,18 +130,16 @@ export default function LoginScreen() {
         {isDesktop && (
           <View style={styles.leftPanel}>
             <View style={styles.leftContent}>
-               <View style={styles.dash} />
-               <Text style={styles.promoTitle}>Fuel Delivered. So You{'\n'}Never Slow Down.</Text>
-               <View style={styles.dash} />
+              <View style={styles.dash} />
+              <Text style={styles.promoTitle}>Fuel Delivered. So You{'\n'}Never Slow Down.</Text>
+              <View style={styles.dash} />
             </View>
           </View>
         )}
 
         {/* Right Panel */}
         <View style={styles.rightPanel}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            {renderForm()}
-          </ScrollView>
+          <ScrollView contentContainerStyle={styles.scrollContent}>{renderForm()}</ScrollView>
         </View>
       </View>
     </View>
@@ -183,10 +215,21 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '700',
   },
-  errorText: {
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+  },
+  errorBannerText: {
     color: Colors.error,
-    ...Typography.caption,
-    textAlign: 'center',
+    ...Typography.bodySmall,
+    fontWeight: '600',
+    flex: 1,
   },
   loginBtn: {
     height: 54,
@@ -236,5 +279,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000000',
     fontWeight: '800',
-  }
+  },
 });

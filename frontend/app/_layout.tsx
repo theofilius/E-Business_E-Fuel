@@ -1,51 +1,61 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import { Colors } from '../constants/theme';
 import { useAuthStore } from '../store/useAuthStore';
-import { View, Platform } from 'react-native';
 import { Navbar } from '../components/ui/Navbar';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const loaded = true;
-
-  const { token, restoreToken, isLoading } = useAuthStore();
+  const { user, token, restoreToken, isLoading } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     restoreToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Role-aware navigation guard
   useEffect(() => {
-    if (loaded && !isLoading) {
-      SplashScreen.hideAsync();
-      
-      const inAuthGroup = segments[0] === '(auth)';
-      const inOnboardingGroup = segments[0] === '(onboarding)';
+    if (isLoading) return;
+    SplashScreen.hideAsync();
 
-      if (!token) {
-        // If not logged in and not in auth or onboarding, stay or go to login
-        // For web, we can let users see the home page/landing
-        if (!inAuthGroup && !inOnboardingGroup && Platform.OS !== 'web') {
-          router.replace('/(onboarding)');
-        }
-      } else {
-        // If logged in and in auth or onboarding, go to tabs
-        if (inAuthGroup || inOnboardingGroup) {
-          router.replace('/(tabs)');
-        }
-      }
+    const group = segments[0] as string | undefined;
+    const inAuthGroup = group === '(auth)';
+    const inOnboardingGroup = group === '(onboarding)';
+    const inTabsGroup = group === '(tabs)';
+    const inDriverGroup = group === '(driver)';
+    const inAdminGroup = group === '(admin)';
+    const inOrderRoute = group === 'order';
+    const inProtected = inTabsGroup || inDriverGroup || inAdminGroup || inOrderRoute;
+
+    if (!token) {
+      if (inProtected) router.replace('/(onboarding)');
+      return;
     }
-  }, [loaded, isLoading, token, segments]);
 
-  if (!loaded || isLoading) {
+    // Logged in — route by role
+    const isDriver = user?.role === 'driver';
+    const isAdmin = user?.role === 'admin';
+    const home = isAdmin ? '/(admin)' : isDriver ? '/(driver)' : '/(tabs)';
+
+    if (inAuthGroup || inOnboardingGroup) {
+      router.replace(home as any);
+    } else if (isAdmin && !inAdminGroup) {
+      router.replace('/(admin)' as any);
+    } else if (isDriver && !inDriverGroup) {
+      router.replace('/(driver)' as any);
+    } else if (!isAdmin && !isDriver && (inAdminGroup || inDriverGroup)) {
+      router.replace('/(tabs)');
+    }
+  }, [isLoading, token, user?.role, segments, router]);
+
+  if (isLoading) {
     return <View style={{ flex: 1, backgroundColor: Colors.background }} />;
   }
 
@@ -55,10 +65,18 @@ export default function RootLayout() {
     <ThemeProvider value={DefaultTheme}>
       <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {showNavbar && <Navbar />}
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
-          <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: Colors.background },
+          }}
+        >
+          <Stack.Screen name="(onboarding)" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(driver)" />
+          <Stack.Screen name="(admin)" />
+          <Stack.Screen name="order/[id]" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </View>

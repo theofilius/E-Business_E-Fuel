@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TextInputProps, TouchableOpacity, Platform } from 'react-native';
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TextInputProps,
+  TouchableOpacity,
+  Platform,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, BorderRadius, Shadows } from '../../constants/theme';
 
-interface InputProps extends TextInputProps {
+interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
   error?: string;
   icon?: keyof typeof Ionicons.glyphMap;
   isPassword?: boolean;
+  /** Styles the input *container* (not the inner TextInput). */
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Input = ({ label, error, icon, isPassword, style, ...props }: InputProps) => {

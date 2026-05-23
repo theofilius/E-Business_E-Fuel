@@ -1,42 +1,79 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, useWindowDimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Card } from '../../components/ui/Card';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+interface FieldErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  password?: string;
+  confirmPassword?: string;
+}
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { signUp, isLoading } = useAuthStore();
-  
+  const { signUp, isSubmitting, error, clearError } = useAuthStore();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
   const { width } = useWindowDimensions();
   const isDesktop = width > 1024;
-  
-  const [error, setError] = useState('');
+
+  const validate = () => {
+    const errs: FieldErrors = {};
+    if (!name.trim()) errs.name = 'Nama wajib diisi';
+
+    if (!email.trim()) errs.email = 'Email wajib diisi';
+    else if (!EMAIL_REGEX.test(email.trim())) errs.email = 'Format email tidak valid';
+
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (!phone.trim()) errs.phone = 'Nomor telepon wajib diisi';
+    else if (phoneDigits.length < 9) errs.phone = 'Nomor telepon tidak valid';
+
+    if (!password) errs.password = 'Password wajib diisi';
+    else if (password.length < 6) errs.password = 'Password minimal 6 karakter';
+
+    if (!confirmPassword) errs.confirmPassword = 'Ulangi password Anda';
+    else if (password !== confirmPassword) errs.confirmPassword = 'Kata sandi tidak cocok';
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleRegister = async () => {
-    if (!name || !email || !password) {
-      setError('Semua bidang wajib diisi');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Kata sandi tidak cocok');
-      return;
-    }
+    if (!validate()) return;
     try {
-      await signUp(name, email, password);
+      await signUp({ name, email, password, phone });
       router.replace('/(tabs)');
-    } catch (err) {
-      setError('Pendaftaran gagal. Silakan coba lagi.');
+    } catch {
+      // server error is displayed via the store's `error`
     }
+  };
+
+  // Clear a field error (and any server error) as the user types
+  const clearField = (field: keyof FieldErrors) => {
+    if (fieldErrors[field]) setFieldErrors((e) => ({ ...e, [field]: undefined }));
+    if (error) clearError();
   };
 
   const renderForm = () => (
@@ -45,47 +82,79 @@ export default function RegisterScreen() {
       <Text style={styles.subtitle}>Yuk! Buat akun E-Fuel sekarang.</Text>
 
       <View style={styles.form}>
+        {error ? (
+          <View style={styles.errorBanner}>
+            <Ionicons name="alert-circle" size={18} color={Colors.error} />
+            <Text style={styles.errorBannerText}>{error}</Text>
+          </View>
+        ) : null}
+
         <Input
           label="Nama"
-          placeholder="Nama"
+          placeholder="Nama lengkap Anda"
           value={name}
-          onChangeText={setName}
+          onChangeText={(v) => {
+            setName(v);
+            clearField('name');
+          }}
+          error={fieldErrors.name}
         />
         <Input
           label="Email"
-          placeholder="Email"
+          placeholder="nama@email.com"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(v) => {
+            setEmail(v);
+            clearField('email');
+          }}
           autoCapitalize="none"
           keyboardType="email-address"
+          error={fieldErrors.email}
+        />
+        <Input
+          label="No. Telepon"
+          placeholder="08xxxxxxxxxx"
+          value={phone}
+          onChangeText={(v) => {
+            setPhone(v);
+            clearField('phone');
+          }}
+          keyboardType="phone-pad"
+          error={fieldErrors.phone}
         />
         <View style={styles.passwordRow}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.passwordCol}>
             <Input
               label="Password"
-              placeholder="Password"
+              placeholder="Min. 6 karakter"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(v) => {
+                setPassword(v);
+                clearField('password');
+              }}
               isPassword
+              error={fieldErrors.password}
             />
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={styles.passwordCol}>
             <Input
               label="Ketik Ulang Password"
-              placeholder="Ketik Ulang Password"
+              placeholder="Ulangi password"
               value={confirmPassword}
-              onChangeText={setConfirmPassword}
+              onChangeText={(v) => {
+                setConfirmPassword(v);
+                clearField('confirmPassword');
+              }}
               isPassword
+              error={fieldErrors.confirmPassword}
             />
           </View>
         </View>
-        
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        <Button 
-          title="Daftar" 
-          onPress={handleRegister} 
-          isLoading={isLoading}
+        <Button
+          title="Daftar"
+          onPress={handleRegister}
+          isLoading={isSubmitting}
           style={styles.registerBtn}
         />
 
@@ -106,10 +175,16 @@ export default function RegisterScreen() {
             <Text style={styles.loginLink}>Masuk</Text>
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.termsContainer}>
-           <Text style={styles.termsText}>• Dengan membuat akun E-Fuel, Anda telah setuju dengan Syarat & Ketentuan dan Kebijakan Privasi Kardoos</Text>
-           <Text style={styles.termsText}>• Email verifikasi akun akan dikirimkan ke email Anda, pastikan untuk mencantumkan email aktif Anda.</Text>
+          <Text style={styles.termsText}>
+            • Dengan membuat akun E-Fuel, Anda telah setuju dengan Syarat & Ketentuan dan Kebijakan
+            Privasi E-Fuel
+          </Text>
+          <Text style={styles.termsText}>
+            • Email verifikasi akun akan dikirimkan ke email Anda, pastikan untuk mencantumkan email
+            aktif Anda.
+          </Text>
         </View>
       </View>
     </View>
@@ -122,18 +197,16 @@ export default function RegisterScreen() {
         {isDesktop && (
           <View style={styles.leftPanel}>
             <View style={styles.leftContent}>
-               <View style={styles.dash} />
-               <Text style={styles.promoTitle}>Fuel Delivered. So You{'\n'}Never Slow Down.</Text>
-               <View style={styles.dash} />
+              <View style={styles.dash} />
+              <Text style={styles.promoTitle}>Fuel Delivered. So You{'\n'}Never Slow Down.</Text>
+              <View style={styles.dash} />
             </View>
           </View>
         )}
 
         {/* Right Panel */}
         <View style={styles.rightPanel}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            {renderForm()}
-          </ScrollView>
+          <ScrollView contentContainerStyle={styles.scrollContent}>{renderForm()}</ScrollView>
         </View>
       </View>
     </View>
@@ -204,10 +277,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.md,
   },
-  errorText: {
+  passwordCol: {
+    flex: 1,
+  },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+  },
+  errorBannerText: {
     color: Colors.error,
-    ...Typography.caption,
-    textAlign: 'center',
+    ...Typography.bodySmall,
+    fontWeight: '600',
+    flex: 1,
   },
   registerBtn: {
     height: 54,
@@ -267,5 +354,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: Colors.textMuted,
     lineHeight: 14,
-  }
+  },
 });

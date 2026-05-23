@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { Colors, Typography, Spacing, Shadows, BorderRadius } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -8,8 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
 export const Navbar = () => {
   const router = useRouter();
   const segments = useSegments();
-  const { user, signOut } = useAuthStore();
-  
+  const { user } = useAuthStore();
+  const isDriver = user?.role === 'driver';
+  const isAdmin = user?.role === 'admin';
+
   // Only show navbar on web for now, or adapt for mobile later
   if (Platform.OS !== 'web') return null;
 
@@ -31,17 +33,51 @@ export const Navbar = () => {
 
         {/* Nav Links */}
         <View style={styles.navLinks}>
-          <TouchableOpacity style={styles.navLink} onPress={() => router.push('/(tabs)')}>
-            <Text style={[styles.navLinkText, isActive('(tabs)') && styles.activeText]}>Pesan Bensin</Text>
-          </TouchableOpacity>
+          {isAdmin ? (
+            <TouchableOpacity
+              style={styles.navLink}
+              onPress={() => router.push('/(admin)' as any)}
+            >
+              <Text style={[styles.navLinkText, isActive('(admin)') && styles.activeText]}>
+                Admin Dashboard
+              </Text>
+            </TouchableOpacity>
+          ) : isDriver ? (
+            <TouchableOpacity
+              style={styles.navLink}
+              onPress={() => router.push('/(driver)' as any)}
+            >
+              <Text style={[styles.navLinkText, isActive('(driver)') && styles.activeText]}>
+                Dashboard Driver
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.navLink}
+                onPress={() => router.push(user ? '/(tabs)' : '/(auth)/register')}
+              >
+                <Text style={[styles.navLinkText, isActive('(tabs)') && styles.activeText]}>
+                  Pesan Bensin
+                </Text>
+              </TouchableOpacity>
+              {user && (
+                <TouchableOpacity
+                  style={styles.navLink}
+                  onPress={() => router.push('/(tabs)/orders')}
+                >
+                  <Text style={[styles.navLinkText, isActive('orders') && styles.activeText]}>
+                    Pesanan Saya
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
           <TouchableOpacity style={styles.navLink}>
             <Text style={styles.navLinkText}>Cara Kerja</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navLink}>
             <Text style={styles.navLinkText}>Area Layanan</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
-            <Text style={styles.navLinkText}>Premium</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.navLink}>
             <Text style={styles.navLinkText}>FAQs</Text>
@@ -64,7 +100,10 @@ export const Navbar = () => {
                  </View>
                  <Ionicons name="notifications-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} style={styles.profileBtn}>
+              <TouchableOpacity
+                onPress={() => router.push((isAdmin ? '/(admin)' : isDriver ? '/(driver)' : '/(tabs)/profile') as any)}
+                style={styles.profileBtn}
+              >
                 <Ionicons name="person-circle-outline" size={24} color={Colors.textMuted} />
                 <Text style={styles.userName}>{user.name}</Text>
               </TouchableOpacity>

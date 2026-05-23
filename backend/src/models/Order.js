@@ -9,14 +9,14 @@ const orderSchema = new mongoose.Schema(
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Driver',
+      ref: 'User',
       default: null,
     },
     fuelType: {
       type: String,
       required: [true, 'Fuel type is required'],
       enum: {
-        values: ['Pertalite', 'Pertamax', 'Pertamax Turbo', 'Solar', 'Dexlite'],
+        values: ['IGNITE', 'BLAZE', 'QUANTUM', 'DIESEL'],
         message: '{VALUE} is not a valid fuel type',
       },
     },
@@ -48,6 +48,11 @@ const orderSchema = new mongoose.Schema(
         lng: { type: Number, required: true },
       },
     },
+    // Last known driver position while delivering — updated in realtime via Socket.IO
+    driverLocation: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
     status: {
       type: String,
       enum: ['pending', 'accepted', 'on_the_way', 'arrived', 'fueling', 'delivered', 'cancelled'],
@@ -55,7 +60,7 @@ const orderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['cash', 'ewallet', 'bank_transfer'],
+      enum: ['cash', 'dana', 'ovo', 'gopay', 'shopeepay', 'qris', 'bca', 'bni', 'mandiri', 'bri'],
       default: 'cash',
     },
     paymentStatus: {
@@ -67,6 +72,14 @@ const orderSchema = new mongoose.Schema(
       type: String,
       maxlength: [200, 'Notes cannot exceed 200 characters'],
       default: '',
+    },
+    paymentExpiry: {
+      type: Date,
+      default: null,
+    },
+    paymentRef: {
+      type: String,
+      default: null,
     },
     estimatedArrival: {
       type: Date,

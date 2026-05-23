@@ -6,22 +6,43 @@ const {
   getOrderById,
   cancelOrder,
   getFuelPrices,
+  getAvailableOrders,
+  getDriverOrders,
+  acceptOrder,
+  updateOrderStatus,
 } = require('../controllers/orderController');
-const { protect } = require('../middleware/auth');
+const { protect, driverOnly } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
 const router = express.Router();
 
-// @route GET /api/orders/prices (public)
+// ===== Public =====
 router.get('/prices', getFuelPrices);
 
-// @route POST /api/orders
+// ===== Driver-only (must come before /:id routes) =====
+router.get('/available', protect, driverOnly, getAvailableOrders);
+router.get('/driver', protect, driverOnly, getDriverOrders);
+router.put('/:id/accept', protect, driverOnly, acceptOrder);
+router.put(
+  '/:id/status',
+  protect,
+  driverOnly,
+  [
+    body('status')
+      .isIn(['accepted', 'on_the_way', 'arrived', 'fueling', 'delivered'])
+      .withMessage('Invalid status'),
+  ],
+  validate,
+  updateOrderStatus
+);
+
+// ===== Customer =====
 router.post(
   '/',
   protect,
   [
     body('fuelType')
-      .isIn(['Pertalite', 'Pertamax', 'Pertamax Turbo', 'Solar', 'Dexlite'])
+      .isIn(['IGNITE', 'BLAZE', 'QUANTUM', 'DIESEL'])
       .withMessage('Invalid fuel type'),
     body('liters')
       .isFloat({ min: 1, max: 200 })
@@ -29,18 +50,13 @@ router.post(
     body('location.address').notEmpty().withMessage('Delivery address is required'),
     body('location.coordinates.lat').isFloat().withMessage('Valid latitude is required'),
     body('location.coordinates.lng').isFloat().withMessage('Valid longitude is required'),
+    body('paymentMethod').optional().isIn(['cash', 'dana', 'ovo', 'gopay', 'shopeepay', 'qris', 'bca', 'bni', 'mandiri', 'bri']).withMessage('Invalid payment method'),
   ],
   validate,
   createOrder
 );
-
-// @route GET /api/orders
 router.get('/', protect, getMyOrders);
-
-// @route GET /api/orders/:id
 router.get('/:id', protect, getOrderById);
-
-// @route PUT /api/orders/:id/cancel
 router.put('/:id/cancel', protect, cancelOrder);
 
 module.exports = router;

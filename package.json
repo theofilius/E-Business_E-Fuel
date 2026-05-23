@@ -1,0 +1,14 @@
+{
+  "name": "e-fuel-monorepo",
+  "version": "1.0.0",
+  "description": "Root package to run both frontend and backend concurrently",
+  "scripts": {
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run web --prefix frontend\"",
+    "db:local": "npm run db:local --prefix backend",
+    "seed": "npm run seed --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
