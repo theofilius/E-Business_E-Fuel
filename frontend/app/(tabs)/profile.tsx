@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
@@ -31,23 +31,23 @@ export default function ProfileScreen() {
 
         <View style={styles.menuSection}>
           <Card style={styles.menuCard} variant="outlined">
-            <View style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Segera Hadir', 'Fitur ini masih dalam tahap pengembangan.')}>
               <Ionicons name="person-outline" size={24} color={Colors.text} />
               <Text style={styles.menuText}>Edit Profile</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
-            </View>
+            </TouchableOpacity>
             <View style={styles.divider} />
-            <View style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Segera Hadir', 'Fitur ini masih dalam tahap pengembangan.')}>
               <Ionicons name="card-outline" size={24} color={Colors.text} />
               <Text style={styles.menuText}>Payment Methods</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
-            </View>
+            </TouchableOpacity>
             <View style={styles.divider} />
-            <View style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Segera Hadir', 'Fitur ini masih dalam tahap pengembangan.')}>
               <Ionicons name="help-circle-outline" size={24} color={Colors.text} />
               <Text style={styles.menuText}>Help & Support</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.textMuted} />
-            </View>
+            </TouchableOpacity>
           </Card>
         </View>
 

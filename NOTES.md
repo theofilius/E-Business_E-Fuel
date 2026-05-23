@@ -38,15 +38,19 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 
 ## 2. Gaps & Missing Features (Belum Lengkap)
 
-### 🔴 Critical Gaps (Perlu Diperbaiki untuk Demo)
-1.  **Hardcoded Hero Image Path** (`app/(onboarding)/index.tsx`):
-    *   Path asset hero image mengarah ke absolute path lokal di luar project (dari sandbox sebelumnya). Jika dijalankan di environment baru, gambar tidak akan muncul.
-2.  **Product Cards Harga BBM Kosong** (`app/(onboarding)/index.tsx`):
-    *   Harga BBM di landing page onboarding bernilai kosong/placeholder (`Rp /Liter`). Ini dikarenakan belum ada fetching dinamis ke endpoint backend untuk menampilkan harga terbaru di landing page.
-3.  **Dead Links di Navbar** (`components/ui/Navbar.tsx`):
-    *   Link seperti "Cara Kerja", "Area Layanan", dan "FAQs" tidak mengarah ke screen/layout apapun.
-4.  **Dead Actions di Profile Menu** (`app/(tabs)/profile.tsx`):
-    *   Tombol "Edit Profile", "Payment Methods", dan "Help & Support" tidak memiliki feedback ketika diklik (stuck).
+### 🔴 Critical Gaps (Telah Diperbaiki untuk Demo)
+1.  ~~**Hardcoded Hero Image Path** (`app/(onboarding)/index.tsx`)~~: ✅ *Telah diperbaiki dengan generate image lokal.*
+2.  ~~**Product Cards Harga BBM Kosong** (`app/(onboarding)/index.tsx`)~~: ✅ *Telah diperbaiki dengan dummy state harga awal.*
+3.  ~~**Dead Links di Navbar** (`components/ui/Navbar.tsx`)~~: ✅ *Telah diganti dengan routing ke `/` (Cara Kerja) dan `/(tabs)/explore` (Info BBM).*
+4.  ~~**Dead Actions di Profile Menu** (`app/(tabs)/profile.tsx`)~~: ✅ *Telah diberi pop-up alert "Segera Hadir".*
+5.  ~~**Cart & Notification Badge** (`components/ui/Navbar.tsx`)~~: ✅ *Badge `0` telah dihapus agar UI terlihat bersih.*
+
+---
+
+## 2.5 Catatan Eksekusi & Validasi Flow
+- **End-to-End Demo Flow**: Flow pemesanan dari Customer -> Driver (Accept) -> Admin (Stats Update) **telah berhasil divalidasi** berjalan mulus via API testing.
+- Backend API secara tegas memvalidasi input enum (`IGNITE`, lowercase `cash`), yang menuntut konsistensi pengiriman data dari frontend.
+- Tidak ada fatal runtime error pada proses transpilasi Expo (Frontend) maupun Express (Backend).
 
 ### 🟡 Secondary Gaps (Dapat Diabaikan/Mockup untuk Demo 2 Hari)
 1.  **Google OAuth Sign-In**:

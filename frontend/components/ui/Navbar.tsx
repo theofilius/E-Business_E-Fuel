@@ -73,14 +73,11 @@ export const Navbar = () => {
               )}
             </>
           )}
-          <TouchableOpacity style={styles.navLink}>
+          <TouchableOpacity style={styles.navLink} onPress={() => router.push('/')}>
             <Text style={styles.navLinkText}>Cara Kerja</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
-            <Text style={styles.navLinkText}>Area Layanan</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
-            <Text style={styles.navLinkText}>FAQs</Text>
+          <TouchableOpacity style={styles.navLink} onPress={() => router.push('/(tabs)/explore')}>
+            <Text style={[styles.navLinkText, isActive('explore') && styles.activeText]}>Info BBM</Text>
           </TouchableOpacity>
         </View>
 
@@ -89,15 +86,9 @@ export const Navbar = () => {
           {user ? (
             <View style={styles.loggedInRow}>
               <TouchableOpacity style={styles.iconBtn}>
-                 <View style={styles.badgeContainer}>
-                    <Text style={styles.badgeText}>0</Text>
-                 </View>
                  <Ionicons name="cart-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
-                 <View style={[styles.badgeContainer, { backgroundColor: '#EF4444' }]}>
-                    <Text style={styles.badgeText}>0</Text>
-                 </View>
                  <Ionicons name="notifications-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
               <TouchableOpacity
@@ -111,15 +102,9 @@ export const Navbar = () => {
           ) : (
             <View style={styles.loggedOutRow}>
               <TouchableOpacity style={styles.iconBtn}>
-                 <View style={styles.badgeContainer}>
-                    <Text style={styles.badgeText}>0</Text>
-                 </View>
                  <Ionicons name="cart-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
-                 <View style={[styles.badgeContainer, { backgroundColor: '#EF4444' }]}>
-                    <Text style={styles.badgeText}>0</Text>
-                 </View>
                  <Ionicons name="notifications-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
               
