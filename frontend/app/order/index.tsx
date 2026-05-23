@@ -13,19 +13,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import MapPicker, { LatLng } from '../../components/MapPicker';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
-import { reverseGeocode } from '../../utils/geocode';
 import { FuelType } from '../../types';
 
-// Default map centre: Jakarta
-const JAKARTA: LatLng = { lat: -6.2088, lng: 106.8456 };
 const QUICK_LITERS = [1, 3, 5, 10, 15, 20];
+const QUICK_NOMINALS = [20000, 50000, 100000, 150000, 200000];
+
 const FUEL_COLORS: Record<string, string> = {
   IGNITE: '#14B8A6',
   BLAZE: '#F43F5E',
@@ -34,10 +31,14 @@ const FUEL_COLORS: Record<string, string> = {
 };
 
 const formatIDR = (n: number) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+const formatNominalShort = (n: number) => {
+  if (n >= 1000) return `Rp ${n / 1000}rb`;
+  return `Rp ${n}`;
+};
 
 export default function OrderScreen() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const {
     fuelProducts,
     fetchFuelPrices,
@@ -51,16 +52,13 @@ export default function OrderScreen() {
   const isDesktop = width > 1024;
 
   const [vehicle, setVehicle] = useState<'motor' | 'mobil'>('motor');
+  const [vehicleModel, setVehicleModel] = useState('Honda PCX 160');
   const [selectedFuel, setSelectedFuel] = useState<FuelType | null>(null);
   const [literMode, setLiterMode] = useState<'liter' | 'nominal'>('liter');
   const [liters, setLiters] = useState<number>(10);
   const [manualValue, setManualValue] = useState('');
 
-  const [location, setLocation] = useState<LatLng>(JAKARTA);
-  const [address, setAddress] = useState('');
-  const [gpsLoading, setGpsLoading] = useState(false);
-  const [gpsHint, setGpsHint] = useState('');
-
+  const [address, setAddress] = useState('Jl. Merdeka No. 17, RT 02/03, Jakarta Pusat');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'dana' | 'ovo' | 'gopay' | 'shopeepay' | 'qris' | 'bca' | 'bni' | 'mandiri' | 'bri'>('dana');
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
@@ -79,14 +77,24 @@ export default function OrderScreen() {
 
   const pricePerLiter = selectedProduct?.pricePerLiter ?? 0;
   const serviceFee = selectedProduct?.serviceFee ?? 5000;
+  const deliveryFee = 10000;
+  const discount = 5000;
   const subtotal = pricePerLiter * liters;
-  const total = selectedProduct ? subtotal + serviceFee : 0;
+  const total = selectedProduct ? subtotal + serviceFee + deliveryFee - discount : 0;
 
   // ===== Liter handling =====
   const pickQuickLiter = (val: number) => {
     setLiters(val);
     setManualValue('');
     setFormError('');
+  };
+
+  const pickNominal = (val: number) => {
+    setManualValue('');
+    setFormError('');
+    if (pricePerLiter > 0) {
+      setLiters(Math.max(1, Math.floor(val / pricePerLiter)));
+    }
   };
 
   const applyManualValue = (raw: string) => {
@@ -97,36 +105,7 @@ export default function OrderScreen() {
     if (literMode === 'liter') {
       setLiters(Math.min(num, 200));
     } else if (pricePerLiter > 0) {
-      // nominal (rupiah) -> liters
       setLiters(Math.max(1, Math.min(Math.floor(num / pricePerLiter), 200)));
-    }
-  };
-
-  // ===== Location handling =====
-  const applyLocation = async (coords: LatLng) => {
-    setLocation(coords);
-    setFormError('');
-    const addr = await reverseGeocode(coords.lat, coords.lng);
-    if (addr) setAddress(addr);
-  };
-
-  const useMyLocation = async () => {
-    setGpsLoading(true);
-    setGpsHint('');
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setGpsHint('Izin lokasi ditolak. Silakan pilih titik di peta secara manual.');
-        return;
-      }
-      const pos = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      await applyLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-    } catch {
-      setGpsHint('Gagal mendapatkan lokasi. Silakan pilih titik di peta secara manual.');
-    } finally {
-      setGpsLoading(false);
     }
   };
 
@@ -152,13 +131,13 @@ export default function OrderScreen() {
     }
     try {
       const vehicleLabel = vehicle === 'motor' ? 'Motor' : 'Mobil';
-      const composedNotes = [`Kendaraan: ${vehicleLabel}`, notes.trim()]
+      const composedNotes = [`Kendaraan: ${vehicleLabel} - ${vehicleModel}`, notes.trim()]
         .filter(Boolean)
         .join('. ');
       const order = await createOrder({
         fuelType: selectedFuel,
         liters,
-        location: { address: address.trim(), coordinates: location },
+        location: { address: address.trim(), coordinates: { lat: -6.2088, lng: 106.8456 } },
         paymentMethod,
         notes: composedNotes,
       });
@@ -175,55 +154,43 @@ export default function OrderScreen() {
   // ===== Render: main column =====
   const renderContent = () => (
     <View style={styles.mainContent}>
-      <Text style={styles.pageTitle}>Pesan Bensin</Text>
+      <Text style={styles.pageTitle}>Pilih Bensin dan Jumlah Liter</Text>
       <Text style={styles.pageSubtitle}>
-        Pilih lokasi, jenis bensin, dan jumlah liter — kami antar ke tempat Anda.
+        Pilih jenis bensin dan jumlah liter — kami antar ke tempat Anda.
       </Text>
 
-      {/* ===== Alamat Pengiriman + Peta ===== */}
+      {/* ===== Alamat Pengiriman ===== */}
       <Card style={styles.sectionCard}>
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionHeader}>Alamat Pengiriman</Text>
           <TouchableOpacity
-            style={[styles.gpsBtn, gpsLoading && styles.gpsBtnLoading]}
-            onPress={useMyLocation}
-            disabled={gpsLoading}
+            style={styles.changeAddressBtn}
+            onPress={() => {
+              if (Platform.OS === 'web') {
+                window.alert('Fitur ganti alamat segera hadir.');
+              }
+            }}
           >
-            {gpsLoading ? (
-              <ActivityIndicator size="small" color={Colors.primary} />
-            ) : (
-              <Ionicons name="locate" size={16} color={Colors.primary} />
-            )}
-            <Text style={styles.gpsBtnText}>
-              {gpsLoading ? 'Mencari…' : 'Gunakan Lokasi Saya'}
-            </Text>
+            <Ionicons name="create-outline" size={16} color={Colors.primary} />
+            <Text style={styles.changeAddressBtnText}>Ganti Alamat</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.divider} />
-
-        <MapPicker value={location} onChange={applyLocation} height={isDesktop ? 300 : 220} />
-
-        {gpsHint ? <Text style={styles.gpsHint}>{gpsHint}</Text> : null}
-        <Text style={styles.mapHelp}>
-          Klik pada peta atau geser pin untuk menentukan titik antar.
-        </Text>
-
-        <Text style={styles.inputLabel}>Alamat Lengkap</Text>
-        <TextInput
-          style={styles.addressInput}
-          placeholder="cth. Jl. Merdeka No. 17, RT 02/03, Jakarta Pusat"
-          placeholderTextColor={Colors.textMuted}
-          value={address}
-          onChangeText={(v) => {
-            setAddress(v);
-            setFormError('');
-          }}
-          multiline
-        />
-        <Text style={styles.coordsText}>
-          📍 Titik: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-        </Text>
+        <View style={styles.addressInfoRow}>
+          <Ionicons name="person-circle-outline" size={36} color={Colors.textMuted} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.addressUserName}>{user?.name || 'Customer Demo'}</Text>
+            <Text style={styles.addressPhone}>{user?.phone || '0812-3456-7890'}</Text>
+            <Text style={styles.addressText}>{address}</Text>
+          </View>
+        </View>
       </Card>
+
+      {/* ===== Estimasi Pengiriman ===== */}
+      <View style={styles.estimasiBar}>
+        <Ionicons name="time-outline" size={20} color={Colors.primary} />
+        <Text style={styles.estimasiText}>Estimasi Pengiriman <Text style={{ fontWeight: '800' }}>5-10 Menit</Text> ke Lokasi mu</Text>
+      </View>
 
       {/* ===== Jenis Kendaraan ===== */}
       <Card style={styles.sectionCard}>
@@ -260,11 +227,19 @@ export default function OrderScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+        <Text style={styles.inputLabel}>MODEL KENDARAAN</Text>
+        <TextInput
+          style={styles.modelInput}
+          value={vehicleModel}
+          onChangeText={setVehicleModel}
+          placeholder="cth. Honda PCX 160"
+          placeholderTextColor={Colors.textMuted}
+        />
       </Card>
 
       {/* ===== Pilih Bensin ===== */}
       <Card style={styles.sectionCard}>
-        <Text style={styles.sectionHeader}>Pilih Jenis Bensin</Text>
+        <Text style={styles.sectionHeader}>Produk BBM</Text>
         {isLoadingPrices ? (
           <View style={styles.loadingBox}>
             <ActivityIndicator color={Colors.primary} />
@@ -279,6 +254,7 @@ export default function OrderScreen() {
             {fuelProducts.map((fuel) => {
               const active = selectedFuel === fuel.fuelType;
               const color = FUEL_COLORS[fuel.fuelType] || Colors.primary;
+              const isRecommended = fuel.fuelType === 'BLAZE';
               return (
                 <TouchableOpacity
                   key={fuel.fuelType}
@@ -292,9 +268,16 @@ export default function OrderScreen() {
                     <Text style={styles.fuelIconText}>{fuel.ron.replace(/\D/g, '')}</Text>
                   </View>
                   <View style={styles.fuelInfo}>
-                    <Text style={styles.fuelName} numberOfLines={1}>
-                      {fuel.name}
-                    </Text>
+                    <View style={styles.fuelNameRow}>
+                      <Text style={styles.fuelName} numberOfLines={1}>
+                        {fuel.name}
+                      </Text>
+                      {isRecommended && (
+                        <View style={styles.recommendedBadge}>
+                          <Text style={styles.recommendedText}>Recommended</Text>
+                        </View>
+                      )}
+                    </View>
                     <Text style={styles.fuelMeta}>
                       {fuel.ron} · {formatIDR(fuel.pricePerLiter)}/L
                     </Text>
@@ -311,7 +294,7 @@ export default function OrderScreen() {
         )}
       </Card>
 
-      {/* ===== Jumlah Liter ===== */}
+      {/* ===== Jumlah ===== */}
       <Card style={styles.sectionCard}>
         <Text style={styles.sectionHeader}>Jumlah</Text>
         <View style={styles.literToggleRow}>
@@ -349,37 +332,71 @@ export default function OrderScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.quickLiterGrid}>
-          {QUICK_LITERS.map((val) => (
+        {literMode === 'liter' ? (
+          <View style={styles.quickLiterGrid}>
+            {QUICK_LITERS.map((val) => (
+              <TouchableOpacity
+                key={val}
+                style={[styles.quickBtn, liters === val && !manualValue && styles.quickBtnActive]}
+                onPress={() => pickQuickLiter(val)}
+              >
+                <Text
+                  style={[
+                    styles.quickBtnText,
+                    liters === val && !manualValue && styles.quickBtnTextActive,
+                  ]}
+                >
+                  {val} L
+                </Text>
+              </TouchableOpacity>
+            ))}
             <TouchableOpacity
-              key={val}
-              style={[styles.quickBtn, liters === val && !manualValue && styles.quickBtnActive]}
-              onPress={() => pickQuickLiter(val)}
+              style={[styles.quickBtn, liters === 50 && !manualValue && styles.quickBtnActive]}
+              onPress={() => pickQuickLiter(50)}
             >
               <Text
                 style={[
                   styles.quickBtnText,
-                  liters === val && !manualValue && styles.quickBtnTextActive,
+                  liters === 50 && !manualValue && styles.quickBtnTextActive,
                 ]}
               >
-                {val} L
+                Full Tank
               </Text>
             </TouchableOpacity>
-          ))}
-          <TouchableOpacity
-            style={[styles.quickBtn, liters === 50 && !manualValue && styles.quickBtnActive]}
-            onPress={() => pickQuickLiter(50)}
-          >
-            <Text
-              style={[
-                styles.quickBtnText,
-                liters === 50 && !manualValue && styles.quickBtnTextActive,
-              ]}
+          </View>
+        ) : (
+          <View style={styles.quickLiterGrid}>
+            {QUICK_NOMINALS.map((val) => (
+              <TouchableOpacity
+                key={val}
+                style={[styles.quickBtn, !manualValue && pricePerLiter > 0 && liters === Math.floor(val / pricePerLiter) && styles.quickBtnActive]}
+                onPress={() => pickNominal(val)}
+              >
+                <Text
+                  style={[
+                    styles.quickBtnText,
+                    !manualValue && pricePerLiter > 0 && liters === Math.floor(val / pricePerLiter) && styles.quickBtnTextActive,
+                  ]}
+                >
+                  {formatNominalShort(val)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={[styles.quickBtn, liters === 50 && !manualValue && styles.quickBtnActive]}
+              onPress={() => pickQuickLiter(50)}
             >
-              Full Tank
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text
+                style={[
+                  styles.quickBtnText,
+                  liters === 50 && !manualValue && styles.quickBtnTextActive,
+                ]}
+              >
+                Full Tank
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <Text style={styles.inputLabel}>
           {literMode === 'liter' ? 'ATAU INPUT MANUAL (LITER)' : 'INPUT NOMINAL (RUPIAH)'}
@@ -399,6 +416,26 @@ export default function OrderScreen() {
           Jumlah pesanan: <Text style={styles.literResultBold}>{liters} Liter</Text>
         </Text>
       </Card>
+
+      {/* ===== Quick Summary (Bottom Left on Desktop) ===== */}
+      {isDesktop && selectedProduct && (
+        <Card style={styles.quickSummaryCard}>
+          <View style={styles.quickSummaryRow}>
+            <View>
+              <Text style={styles.quickSummaryLabel}>Jenis BBM</Text>
+              <Text style={styles.quickSummaryValue}>{selectedProduct.name}</Text>
+            </View>
+            <View>
+              <Text style={styles.quickSummaryLabel}>Jumlah</Text>
+              <Text style={styles.quickSummaryValue}>{liters} Liter</Text>
+            </View>
+            <View>
+              <Text style={styles.quickSummaryLabel}>Total Bayar</Text>
+              <Text style={[styles.quickSummaryValue, { color: Colors.primary }]}>{formatIDR(total)}</Text>
+            </View>
+          </View>
+        </Card>
+      )}
     </View>
   );
 
@@ -476,7 +513,7 @@ export default function OrderScreen() {
       </Card>
 
       <Card style={styles.sidebarCard}>
-        <Text style={styles.sidebarLabel}>Catatan untuk Driver</Text>
+        <Text style={styles.sidebarLabel}>Tulis Catatanmu</Text>
         <TextInput
           style={styles.noteInput}
           placeholder="cth. Rumah pagar hitam, motor di garasi"
@@ -498,14 +535,18 @@ export default function OrderScreen() {
         </View>
         <View style={styles.orderDetailRow}>
           <Text style={styles.orderDetailText}>Ongkos Kirim</Text>
-          <Text style={styles.orderDetailPrice}>{formatIDR(10000)}</Text>
+          <Text style={styles.orderDetailPrice}>{formatIDR(deliveryFee)}</Text>
+        </View>
+        <View style={styles.orderDetailRow}>
+          <Text style={styles.orderDetailText}>Biaya Layanan</Text>
+          <Text style={styles.orderDetailPrice}>{formatIDR(serviceFee)}</Text>
         </View>
         <View style={styles.orderDetailRow}>
           <Text style={[styles.orderDetailText, { color: Colors.success }]}>
             Diskon Pelanggan
           </Text>
           <Text style={[styles.orderDetailPrice, { color: Colors.success }]}>
-            - {formatIDR(5000)}
+            - {formatIDR(discount)}
           </Text>
         </View>
 
@@ -518,7 +559,7 @@ export default function OrderScreen() {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         <Button
-          title={token ? 'Pesan Sekarang' : 'Masuk untuk Memesan'}
+          title={token ? 'Lanjut Bayar' : 'Masuk untuk Memesan'}
           onPress={handleOrder}
           isLoading={isSubmitting}
           style={styles.orderBtn}
@@ -532,13 +573,6 @@ export default function OrderScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={Colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Order Bensin</Text>
-        <View style={{ width: 40 }} />
-      </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={[styles.layout, isDesktop && styles.desktopLayout]}>
           {renderContent()}
@@ -583,8 +617,8 @@ const styles = StyleSheet.create({
   },
   sectionHeader: { ...Typography.h3, color: Colors.text, marginBottom: Spacing.md },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginBottom: Spacing.md },
-  // GPS button
-  gpsBtn: {
+  // Address card
+  changeAddressBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -596,15 +630,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0FDFA',
     marginBottom: Spacing.md,
   },
-  gpsBtnLoading: { opacity: 0.7 },
-  gpsBtnText: { ...Typography.bodySmall, color: Colors.primary, fontWeight: '700' },
-  gpsHint: {
-    ...Typography.caption,
-    color: Colors.warning,
-    marginTop: Spacing.sm,
-    fontWeight: '600',
+  changeAddressBtnText: { ...Typography.bodySmall, color: Colors.primary, fontWeight: '700' },
+  addressInfoRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    alignItems: 'flex-start',
   },
-  mapHelp: { ...Typography.caption, color: Colors.textMuted, marginTop: Spacing.sm },
+  addressUserName: { ...Typography.body, fontWeight: '700', color: Colors.text },
+  addressPhone: { ...Typography.bodySmall, color: Colors.textMuted, marginTop: 2 },
+  addressText: { ...Typography.bodySmall, color: Colors.textMuted, marginTop: 4, lineHeight: 20 },
+  // Estimasi
+  estimasiBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: '#F0FDFA',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
+  },
+  estimasiText: { ...Typography.bodySmall, color: Colors.text },
+  // Vehicle
   inputLabel: {
     ...Typography.caption,
     color: Colors.textMuted,
@@ -613,20 +661,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },
-  addressInput: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    minHeight: 64,
-    ...Typography.body,
-    color: Colors.text,
-    backgroundColor: Colors.surface,
-    textAlignVertical: 'top',
-    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}),
-  },
-  coordsText: { ...Typography.caption, color: Colors.textMuted, marginTop: Spacing.sm },
-  // Vehicle
   vehicleRow: { flexDirection: 'row', gap: Spacing.md },
   vehicleBtn: {
     flex: 1,
@@ -643,6 +677,16 @@ const styles = StyleSheet.create({
   vehicleBtnActive: { borderColor: Colors.primary, backgroundColor: '#F0FDFA' },
   vehicleBtnText: { ...Typography.body, fontWeight: '600', color: Colors.textMuted },
   vehicleBtnTextActive: { color: Colors.primary },
+  modelInput: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    ...Typography.body,
+    color: Colors.text,
+    backgroundColor: Colors.surface,
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}),
+  },
   // Fuel grid
   loadingBox: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: Spacing.md },
   loadingText: { ...Typography.bodySmall, color: Colors.textMuted },
@@ -668,8 +712,16 @@ const styles = StyleSheet.create({
   },
   fuelIconText: { fontSize: 20, fontWeight: '900', color: '#FFFFFF' },
   fuelInfo: { flex: 1, overflow: 'hidden' },
+  fuelNameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   fuelName: { ...Typography.body, fontWeight: '700', color: Colors.text },
   fuelMeta: { ...Typography.caption, color: Colors.textMuted, marginTop: 2 },
+  recommendedBadge: {
+    backgroundColor: '#DBEAFE',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  recommendedText: { fontSize: 10, fontWeight: '700', color: '#2563EB' },
   checkCircle: {
     width: 22,
     height: 22,
@@ -727,6 +779,11 @@ const styles = StyleSheet.create({
   manualUnit: { ...Typography.body, color: Colors.textMuted, fontWeight: '600' },
   literResult: { ...Typography.bodySmall, color: Colors.textMuted, marginTop: Spacing.md },
   literResultBold: { color: Colors.primary, fontWeight: '800' },
+  // Quick Summary
+  quickSummaryCard: { padding: Spacing.lg, backgroundColor: '#F0FDFA', borderWidth: 1, borderColor: '#CCFBF1' },
+  quickSummaryRow: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.lg },
+  quickSummaryLabel: { ...Typography.caption, color: Colors.textMuted, marginBottom: 4 },
+  quickSummaryValue: { ...Typography.body, fontWeight: '700', color: Colors.text },
   // Sidebar
   sidebarCard: { padding: Spacing.lg },
   sidebarLabel: { ...Typography.body, fontWeight: '700', color: Colors.text, marginBottom: Spacing.md },
@@ -813,15 +870,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: Spacing.md,
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Spacing.md,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-  },
-  backBtn: { padding: Spacing.sm },
-  headerTitle: { ...Typography.h3, color: Colors.text },
 });

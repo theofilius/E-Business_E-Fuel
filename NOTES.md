@@ -59,6 +59,8 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 4.  ~~**Admin Dashboard Polish**~~: ✅ *Dirombak total menjadi arsitektur multi-page dengan layout sidebar sesuai Figma (Dashboard, Kelola Order, Kelola Driver, Analytics, Settings).*
 5.  ~~**Admin Dashboard Data Bugs**~~: ✅ *Diperbaiki: Badge kelola order dibuat dinamis. Status driver & performa dihitung *real-time* dari tabel order. Bar chart jenis BBM di *Analytics* menyesuaikan dengan transaksi nyata. Dobel navbar di-hilangkan.*
 6.  ~~**Customer Landing & Order Flow**~~: ✅ *Landing page setelah login kini menampilkan hero section seperti publik. Flow pemesanan dan payment VA/QRIS telah disempurnakan lengkap dengan simulasi tombol "Saya Sudah Bayar" yang terintegrasi dengan state management dan backend existing. Lacak pesanan existing dipertahankan utuh.*
+7.  ~~**Order Page Navbar Bug**~~: ✅ *Navbar marketing dihilangkan dari halaman form order (`/order`), simulasi bayar, dan map lacak pesanan. Form order kembali menggunakan header lama bawaan (title bar + back button).*
+8.  ~~**Order Page Figma Alignment**~~: ✅ *Halaman `/order` dirombak sesuai Figma: map dihapus, diganti card alamat pengiriman statis, estimasi pengiriman, jenis kendaraan + model, produk BBM dengan badge Recommended, mode Liter/Nominal dengan quick-select yang berbeda, dan tombol "Lanjut Bayar". Halaman Pesanan Saya diperkaya dengan detail harga/liter, kendaraan, metode pembayaran, dan tombol Download Invoice. Payment redirect ke Pesanan Saya.*
 
 ---
 

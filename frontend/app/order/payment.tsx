@@ -63,7 +63,7 @@ export default function PaymentScreen() {
     try {
       setConfirming(true);
       await confirmPayment(id);
-      router.replace(`/order/${id}` as any);
+      router.replace('/(tabs)/orders' as any);
     } catch (err: any) {
       setError(err.message || 'Gagal mengkonfirmasi pembayaran');
       setConfirming(false);
