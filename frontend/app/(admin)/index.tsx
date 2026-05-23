@@ -127,12 +127,14 @@ export default function AdminDashboardOverview() {
               <Text style={styles.emptyText}>Belum ada data driver.</Text>
             ) : (
               drivers.slice(0, 5).map((driver, idx) => {
-                // Mock logic for driver status based on index for demo purposes to match Figma variety
-                let status = 'Aktif';
-                let badgeStatus = 'success';
-                let metaText = 'Siap Antar • Area Serpong';
-                if (idx === 0) { status = 'Sibuk'; badgeStatus = 'warning'; metaText = 'Mengantar #ORD-001 • ETA 8 Menit'; }
-                if (idx === 3) { status = 'Offline'; badgeStatus = 'error'; metaText = 'Tidak Aktif'; }
+                const status = driver.status || 'Aktif';
+                const badgeStatus = status === 'Sibuk' ? 'warning' : status === 'Offline' ? 'error' : 'success';
+                let metaText = 'Siap Antar • Area Terdekat';
+                if (status === 'Sibuk') {
+                  metaText = `Mengantar ${driver.stats?.activeOrdersCount || 1} Order • ETA 8 Menit`;
+                } else if (status === 'Offline') {
+                  metaText = 'Tidak Aktif';
+                }
 
                 return (
                   <View key={driver._id} style={styles.listItem}>

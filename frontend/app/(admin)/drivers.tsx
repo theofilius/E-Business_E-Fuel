@@ -50,14 +50,11 @@ export default function AdminDrivers() {
             <Text style={styles.emptyText}>Belum ada data driver.</Text>
           ) : (
             drivers.map((driver, idx) => {
-              // Mock logic for driver status, rating, orders for demo purposes since backend only has basic user model
-              let status = 'Aktif';
-              let badgeStatus = 'success';
-              if (idx % 3 === 0) { status = 'Sibuk'; badgeStatus = 'warning'; }
-              if (idx === drivers.length - 1 && drivers.length > 3) { status = 'Offline'; badgeStatus = 'error'; }
+              const status = driver.status || 'Aktif';
+              const badgeStatus = status === 'Sibuk' ? 'warning' : status === 'Offline' ? 'error' : 'success';
               
-              const mockRating = (4.5 + (idx % 5) * 0.1).toFixed(1);
-              const mockTotalOrder = 120 + (idx * 24);
+              const mockRating = driver.rating ? driver.rating.toFixed(1) : "4.8";
+              const totalOrder = driver.stats?.totalOrders || 0;
 
               return (
                 <Card key={driver._id} style={styles.driverCard}>
@@ -83,7 +80,7 @@ export default function AdminDrivers() {
                     <View style={styles.statBox}>
                       <View>
                         <Text style={styles.statLabel}>Total Order</Text>
-                        <Text style={styles.statValue}>{mockTotalOrder}</Text>
+                        <Text style={styles.statValue}>{totalOrder}</Text>
                       </View>
                     </View>
                   </View>

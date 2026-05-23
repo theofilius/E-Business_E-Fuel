@@ -59,7 +59,7 @@ export default function RootLayout() {
     return <View style={{ flex: 1, backgroundColor: Colors.background }} />;
   }
 
-  const showNavbar = segments[0] !== '(auth)';
+  const showNavbar = segments[0] !== '(auth)' && segments[0] !== '(admin)';
 
   return (
     <ThemeProvider value={DefaultTheme}>

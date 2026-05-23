@@ -40,18 +40,38 @@ export default function AdminAnalytics() {
   }
 
   // Fallback data for layout presentation matching Figma
-  const revenue = stats?.revenue || 18400000;
-  const totalOrder = stats?.totalOrders || 142;
-  const avgOrderValue = Math.round(revenue / (totalOrder || 1));
+  const revenue = stats?.revenue || 0;
+  const totalOrder = stats?.totalOrders || 0;
+  const avgOrderValue = totalOrder > 0 ? Math.round(revenue / totalOrder) : 0;
+  const premiumUsers = 34; // Static mockup for premium users if we don't have it
   
-  // Fuel chart data mock
-  const fuelData = [
-    { name: 'IGNITE 92', count: 68, color: Colors.primary },
-    { name: 'BLAZE 95', count: 120, color: Colors.primaryLight },
-    { name: 'QUANTUM 98', count: 40, color: Colors.accent },
-    { name: 'DIESEL', count: 14, color: Colors.info },
-  ];
-  const maxCount = Math.max(...fuelData.map(d => d.count));
+  // Fuel chart data dynamic mapping
+  const fuelColors: any = {
+    'IGNITE': Colors.primary,
+    'BLAZE': Colors.primaryLight,
+    'QUANTUM': Colors.accent,
+    'DIESEL': Colors.info
+  };
+
+  const dbFuelData = stats?.ordersByFuel || [];
+  
+  // Merge with defaults to ensure all 4 show up even if 0
+  const defaultFuels = ['IGNITE', 'BLAZE', 'QUANTUM', 'DIESEL'];
+  const fuelData = defaultFuels.map(f => {
+    const found = dbFuelData.find((d: any) => d.name === f || d.name?.includes(f));
+    return {
+      name: f,
+      count: found ? found.count : 0,
+      color: fuelColors[f] || Colors.primary
+    };
+  });
+  
+  const maxCount = Math.max(...fuelData.map(d => d.count), 1); // use 1 as min to avoid div by zero
+
+  // Find best seller
+  const bestSeller = [...fuelData].sort((a, b) => b.count - a.count)[0];
+  const bestSellerName = bestSeller.count > 0 ? bestSeller.name : '-';
+  const bestSellerPercentage = totalOrder > 0 ? Math.round((bestSeller.count / totalOrder) * 100) : 0;
 
   return (
     <View style={styles.container}>
@@ -64,7 +84,7 @@ export default function AdminAnalytics() {
           
           <View style={styles.dataRow}>
             <Text style={styles.dataLabel}>BBM Terlaris</Text>
-            <Text style={styles.dataValue}>BLAZE 95 (50%)</Text>
+            <Text style={styles.dataValue}>{bestSellerName} ({bestSellerPercentage}%)</Text>
           </View>
           <View style={styles.dataRow}>
             <Text style={styles.dataLabel}>Total Order</Text>
@@ -76,7 +96,7 @@ export default function AdminAnalytics() {
           </View>
           <View style={styles.dataRow}>
             <Text style={styles.dataLabel}>Pengguna premium</Text>
-            <Text style={styles.dataValue}>34 user</Text>
+            <Text style={styles.dataValue}>{premiumUsers} user</Text>
           </View>
         </Card>
 
@@ -116,16 +136,15 @@ export default function AdminAnalytics() {
           <Text style={styles.emptyText}>Belum ada data driver.</Text>
         ) : (
           drivers.slice(0, 6).map((driver, idx) => {
-            const mockTotal = 40 + (idx * 15);
-            const mockSelesai = mockTotal - 2;
-            const mockRating = (4.5 + (idx % 5) * 0.1).toFixed(1);
+            const mockRating = driver.rating ? driver.rating.toFixed(1) : "4.8";
+            const dStats = driver.stats || { totalOrders: 0, completedOrders: 0, cancelledOrders: 0 };
 
             return (
               <View key={driver._id} style={styles.tableRow}>
                 <Text style={[styles.td, { flex: 2, fontWeight: '600' }]}>{driver.name}</Text>
-                <Text style={[styles.td, { flex: 1.5 }]}>{mockTotal}</Text>
-                <Text style={[styles.td, { flex: 1 }]}>{mockSelesai}</Text>
-                <Text style={[styles.td, { flex: 1 }]}>2</Text>
+                <Text style={[styles.td, { flex: 1.5 }]}>{dStats.totalOrders}</Text>
+                <Text style={[styles.td, { flex: 1 }]}>{dStats.completedOrders}</Text>
+                <Text style={[styles.td, { flex: 1 }]}>{dStats.cancelledOrders}</Text>
                 <Text style={[styles.td, { flex: 1, color: Colors.warning }]}>⭐ {mockRating}</Text>
                 <Text style={[styles.td, { flex: 1.5 }]}>12 Menit</Text>
               </View>

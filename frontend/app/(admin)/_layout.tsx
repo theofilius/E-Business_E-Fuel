@@ -4,12 +4,32 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
+import api from '../../services/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AdminLayout() {
   const router = useRouter();
   const segments = useSegments();
   const { user, signOut } = useAuthStore();
+  const [pendingCount, setPendingCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data } = await api.get('/admin/stats');
+        if (data.success && data.data.pendingOrders) {
+          setPendingCount(data.data.pendingOrders);
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    fetchStats();
+    
+    // Optional: Set up an interval to refresh the badge count every 10 seconds for real-time feel
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const currentRoute = segments[segments.length - 1];
 
@@ -20,7 +40,7 @@ export default function AdminLayout() {
 
   const navItems = [
     { label: 'Dashboard', route: 'index', icon: 'grid-outline' },
-    { label: 'Kelola Order', route: 'orders', icon: 'receipt-outline', badge: 3 },
+    { label: 'Kelola Order', route: 'orders', icon: 'receipt-outline', badge: pendingCount > 0 ? pendingCount : null },
     { label: 'Kelola Driver', route: 'drivers', icon: 'bicycle-outline' },
     { label: 'Laporan & Analitik', route: 'analytics', icon: 'bar-chart-outline' },
     { label: 'Pengaturan Cabang', route: 'settings', icon: 'settings-outline' },

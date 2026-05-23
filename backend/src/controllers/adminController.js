@@ -16,15 +16,27 @@ const getStats = async (req, res, next) => {
 
     const totalCustomers = await User.countDocuments({ role: 'customer' });
     const totalDrivers = await User.countDocuments({ role: 'driver' });
+    const pendingOrders = await Order.countDocuments({ status: 'pending' });
+
+    const fuelAggregation = await Order.aggregate([
+      { $group: { _id: '$fuelType', count: { $sum: 1 } } }
+    ]);
+    
+    const ordersByFuel = fuelAggregation.map(item => ({
+      name: item._id,
+      count: item.count
+    }));
 
     res.json({
       success: true,
       data: {
         totalOrders,
         activeOrders,
+        pendingOrders,
         revenue,
         totalCustomers,
         totalDrivers,
+        ordersByFuel,
       },
     });
   } catch (error) {
@@ -136,10 +148,43 @@ const updateServiceFee = async (req, res, next) => {
 // @access  Private/Admin
 const getAllDrivers = async (req, res, next) => {
   try {
-    const drivers = await User.find({ role: 'driver' }).select('-password');
+    const drivers = await User.find({ role: 'driver' }).select('-password').lean();
+    
+    // Add stats and status to each driver
+    const driverIds = drivers.map(d => d._id);
+    const orders = await Order.find({ driverId: { $in: driverIds } }).lean();
+    
+    const enhancedDrivers = drivers.map(driver => {
+      const driverOrders = orders.filter(o => o.driverId.toString() === driver._id.toString());
+      const activeOrders = driverOrders.filter(o => ['accepted', 'on_the_way', 'arrived', 'fueling'].includes(o.status));
+      const completedOrders = driverOrders.filter(o => o.status === 'delivered');
+      const cancelledOrders = driverOrders.filter(o => o.status === 'cancelled');
+      
+      let status = 'Aktif';
+      // if driver has no active orders but isOffline
+      if (!driver.isOnline) {
+         status = 'Offline';
+      }
+      // If driver has active orders, they are busy regardless of online status
+      if (activeOrders.length > 0) {
+         status = 'Sibuk';
+      }
+      
+      return {
+        ...driver,
+        status,
+        stats: {
+          totalOrders: driverOrders.length,
+          completedOrders: completedOrders.length,
+          cancelledOrders: cancelledOrders.length,
+          activeOrdersCount: activeOrders.length
+        }
+      };
+    });
+
     res.json({
       success: true,
-      data: drivers,
+      data: enhancedDrivers,
     });
   } catch (error) {
     next(error);
