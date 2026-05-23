@@ -61,32 +61,31 @@ export const Navbar = () => {
                   Pesan Bensin
                 </Text>
               </TouchableOpacity>
-              {user && (
-                <TouchableOpacity
-                  style={styles.navLink}
-                  onPress={() => router.push('/(tabs)/orders')}
-                >
-                  <Text style={[styles.navLinkText, isActive('orders') && styles.activeText]}>
-                    Pesanan Saya
-                  </Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+                <Text style={styles.navLinkText}>Tentang E-FUEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navLink} onPress={() => router.push('/')}>
+                <Text style={styles.navLinkText}>Cara Kerja</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+                <Text style={styles.navLinkText}>Area Layanan</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+                <Text style={styles.navLinkText}>Premium</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+                <Text style={styles.navLinkText}>FAQs</Text>
+              </TouchableOpacity>
             </>
           )}
-          <TouchableOpacity style={styles.navLink} onPress={() => router.push('/')}>
-            <Text style={styles.navLinkText}>Cara Kerja</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink} onPress={() => router.push('/(tabs)/explore')}>
-            <Text style={[styles.navLinkText, isActive('explore') && styles.activeText]}>Info BBM</Text>
-          </TouchableOpacity>
         </View>
 
         {/* User Actions */}
         <View style={styles.userActions}>
           {user ? (
             <View style={styles.loggedInRow}>
-              <TouchableOpacity style={styles.iconBtn}>
-                 <Ionicons name="cart-outline" size={24} color={Colors.text} />
+              <TouchableOpacity style={styles.iconBtn} onPress={() => alert('Segera Hadir')}>
+                 <Ionicons name="headset-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
                  <Ionicons name="notifications-outline" size={24} color={Colors.text} />
@@ -101,8 +100,8 @@ export const Navbar = () => {
             </View>
           ) : (
             <View style={styles.loggedOutRow}>
-              <TouchableOpacity style={styles.iconBtn}>
-                 <Ionicons name="cart-outline" size={24} color={Colors.text} />
+              <TouchableOpacity style={styles.iconBtn} onPress={() => alert('Segera Hadir')}>
+                 <Ionicons name="headset-outline" size={24} color={Colors.text} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn}>
                  <Ionicons name="notifications-outline" size={24} color={Colors.text} />

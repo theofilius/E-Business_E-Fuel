@@ -52,7 +52,7 @@ export default function OnboardingScreen() {
         >
           <View style={styles.heroContent}>
             <View style={styles.heroMain}>
-              <Text style={styles.heroTitle}>E-FUEL{'\n'}OUT OF FUEL? WE'VE GOT{'\n'}YOU COVERED.</Text>
+              <Text style={styles.heroTitle}>E-FUEL{'\n'}OUT OF FUEL? WE&apos;VE GOT{'\n'}YOU COVERED.</Text>
               <View style={styles.heroActions}>
                 <Button 
                   title="Pesan Sekarang" 

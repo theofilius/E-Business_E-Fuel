@@ -27,11 +27,28 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
 - **Akun**: `demo@efuel.com` / `demo123`
 - **Jelaskan**: "Sebagai customer, setelah saya login, saya dapat langsung melihat pilihan BBM, dan harga terkini."
 - **Demo Interaksi**:
-  - Di halaman `Pesan Bensin` (Explore), pilih tipe BBM (misal: **RON 92 IGNITE**).
-  - Masukkan jumlah bensin: `10` Liter. *Tunjukkan sistem secara otomatis menghitung harga*.
-  - *Tunjukkan simulasi form lokasi*.
-  - Pilih metode pembayaran (misal: **Cash**).
-  - Klik **"Pesan Sekarang"**.
+  - A. Flow Customer (End-to-End)
+1. **Buka Web Frontend**
+   - Tampil *landing page* dengan Hero mobil E-FUEL.
+2. **Login Customer**
+   - Klik **Masuk**
+   - Gunakan kredensial: `demo@efuel.com` / `demo123`
+3. **Pesan Bensin**
+   - Setelah login, tampilkan landing page hero E-FUEL.
+   - Klik **Pesan Sekarang** (halaman akan auto-scroll ke form pemesanan).
+   - Pilih **Lokasi** (Klik Gunakan Lokasi Saya atau drag pin di peta).
+   - Pilih **Jenis BBM** (Misal: BLAZE 95).
+   - Masukkan **Jumlah** (Bisa per Liter atau per Nominal Rupiah).
+   - Buka **Pilihan Pembayaran** (Misal: QRIS atau BCA Virtual Account).
+   - Klik **Pesan Sekarang**.
+4. **Simulasi Pembayaran**
+   - Sistem akan menampilkan layar QRIS atau VA.
+   - Perhatikan *countdown timer*.
+   - Klik tombol **Saya Sudah Bayar** untuk simulasi sukses.
+   - Akan diarahkan otomatis ke tab **Pesanan Saya**.
+5. **Lacak Pesanan**
+   - Di daftar pesanan, klik **Lacak Pesanan** pada order terbaru.
+   - Lihat peta *live tracking* dan status (Menunggu Driver -> Diterima -> Selesai). Demo
 
 ### 3. Skenario Driver: Menerima Order (2 Menit)
 *Aksi: Buka tab baru / incognito, lalu login sebagai Driver.*

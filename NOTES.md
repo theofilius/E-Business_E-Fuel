@@ -58,6 +58,7 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 3.  ~~**Onboarding CTA & Testimonials**~~: ✅ *Tombol "Lihat Cara Kerja" kini melakukan scroll. Testimonials menggunakan auto-generated avatars dari `ui-avatars.com`.*
 4.  ~~**Admin Dashboard Polish**~~: ✅ *Dirombak total menjadi arsitektur multi-page dengan layout sidebar sesuai Figma (Dashboard, Kelola Order, Kelola Driver, Analytics, Settings).*
 5.  ~~**Admin Dashboard Data Bugs**~~: ✅ *Diperbaiki: Badge kelola order dibuat dinamis. Status driver & performa dihitung *real-time* dari tabel order. Bar chart jenis BBM di *Analytics* menyesuaikan dengan transaksi nyata. Dobel navbar di-hilangkan.*
+6.  ~~**Customer Landing & Order Flow**~~: ✅ *Landing page setelah login kini menampilkan hero section seperti publik. Flow pemesanan dan payment VA/QRIS telah disempurnakan lengkap dengan simulasi tombol "Saya Sudah Bayar" yang terintegrasi dengan state management dan backend existing. Lacak pesanan existing dipertahankan utuh.*
 
 ---
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   TextInput,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -22,6 +23,9 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useOrderStore } from '../../store/useOrderStore';
 import { reverseGeocode } from '../../utils/geocode';
 import { FuelType } from '../../types';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const HERO_IMAGE = require('../../assets/images/hero_image.png');
 
 // Default map centre: Jakarta
 const JAKARTA: LatLng = { lat: -6.2088, lng: 106.8456 };
@@ -49,6 +53,8 @@ export default function HomeScreen() {
   } = useOrderStore();
   const { width } = useWindowDimensions();
   const isDesktop = width > 1024;
+  const scrollViewRef = useRef<ScrollView>(null);
+  const orderSectionY = useRef(0);
 
   const [vehicle, setVehicle] = useState<'motor' | 'mobil'>('motor');
   const [selectedFuel, setSelectedFuel] = useState<FuelType | null>(null);
@@ -71,6 +77,10 @@ export default function HomeScreen() {
     fetchFuelPrices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const scrollToOrder = () => {
+    scrollViewRef.current?.scrollTo({ y: orderSectionY.current, animated: true });
+  };
 
   const selectedProduct = useMemo(
     () => fuelProducts.find((f) => f.fuelType === selectedFuel) || null,
@@ -172,10 +182,90 @@ export default function HomeScreen() {
     }
   };
 
+  // ===== Render: hero landing section =====
+  const renderHero = () => (
+    <View style={heroStyles.wrapper}>
+      {/* Hero Banner */}
+      <View style={[heroStyles.hero, isDesktop && heroStyles.heroDesktop]}>
+        <Image source={HERO_IMAGE} style={heroStyles.heroImage} />
+        <LinearGradient
+          colors={['rgba(15, 23, 42, 0.4)', 'rgba(15, 23, 42, 0.7)']}
+          style={heroStyles.heroOverlay}
+        >
+          <View style={heroStyles.heroContent}>
+            <Text style={heroStyles.heroTitle}>E-FUEL{'\n'}OUT OF FUEL? WE&apos;VE GOT{'\n'}YOU COVERED.</Text>
+            <View style={heroStyles.heroActions}>
+              <TouchableOpacity style={heroStyles.heroBtn} onPress={scrollToOrder}>
+                <Text style={heroStyles.heroBtnText}>Pesan Sekarang</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={heroStyles.outlineBtn}
+                onPress={() => scrollViewRef.current?.scrollTo({ y: 550, animated: true })}
+              >
+                <Text style={heroStyles.outlineBtnText}>Lihat Cara Kerja</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </LinearGradient>
+      </View>
+
+      {/* Guide Section */}
+      <View style={heroStyles.guideSection}>
+        <Text style={heroStyles.sectionTitle}>Beli Bensin dalam 3 Langkah Mudah</Text>
+        <Text style={heroStyles.sectionSubtitle}>Beli bensin online dan kami kirim langsung ke lokasimu dengan proses yang cepat dan praktis.</Text>
+        <View style={[heroStyles.stepsContainer, isDesktop && heroStyles.stepsDesktop]}>
+          <View style={heroStyles.stepCard}>
+            <Ionicons name="cube" size={48} color="#F97316" />
+            <Text style={heroStyles.stepTitle}>Pilih Lokasi Pengiriman</Text>
+          </View>
+          <View style={heroStyles.stepCard}>
+            <Ionicons name="hand-right" size={48} color="#3B82F6" />
+            <Text style={heroStyles.stepTitle}>Pilih Jenis Bensin & Jumlah Liter</Text>
+          </View>
+          <View style={heroStyles.stepCard}>
+            <Ionicons name="car-sport" size={48} color="#F59E0B" />
+            <Text style={heroStyles.stepTitle}>Bayar & Bensin Dikirim</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Products Preview */}
+      <View style={heroStyles.productsSection}>
+        <Text style={heroStyles.sectionTitle}>Pesan Bensin Sekarang</Text>
+        <Text style={heroStyles.sectionSubtitle}>Pilih jenis RON yang kamu butuhkan dan tentukan jumlah liter untuk pengiriman ke lokasimu.</Text>
+        <View style={[heroStyles.productsGrid, isDesktop && heroStyles.productsDesktop]}>
+          {fuelProducts.length > 0 ? fuelProducts.map((fuel) => {
+            const color = FUEL_COLORS[fuel.fuelType] || Colors.primary;
+            return (
+              <View key={fuel.fuelType} style={heroStyles.productCard}>
+                <View style={[heroStyles.productImagePlaceholder, { backgroundColor: color }]}>
+                  <Text style={heroStyles.productBigRon}>{fuel.ron.replace(/\D/g, '')}</Text>
+                  <Text style={heroStyles.productBrandText}>E-FUEL{'\n'}{fuel.name.split(' ').pop()}</Text>
+                </View>
+                <View style={heroStyles.productInfo}>
+                  <Text style={heroStyles.productName}>{fuel.name}</Text>
+                  <Text style={heroStyles.productPriceLabel}>{formatIDR(fuel.pricePerLiter)}/Liter</Text>
+                  <TouchableOpacity style={heroStyles.productActionBtn} onPress={() => {
+                    setSelectedFuel(fuel.fuelType);
+                    scrollToOrder();
+                  }}>
+                    <Text style={heroStyles.productActionBtnText}>Pesan Sekarang</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          }) : (
+            <Text style={{ color: Colors.textMuted }}>Memuat produk...</Text>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+
   // ===== Render: main column =====
   const renderContent = () => (
-    <View style={styles.mainContent}>
-      <Text style={styles.pageTitle}>Pesan Bensin</Text>
+    <View style={styles.mainContent} onLayout={(e) => { orderSectionY.current = e.nativeEvent.layout.y; }}>
+      <Text style={styles.pageTitle}>Pilih Bensin dan Jumlah Liter</Text>
       <Text style={styles.pageSubtitle}>
         Pilih lokasi, jenis bensin, dan jumlah liter — kami antar ke tempat Anda.
       </Text>
@@ -532,7 +622,8 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContent}>
+        {renderHero()}
         <View style={[styles.layout, isDesktop && styles.desktopLayout]}>
           {renderContent()}
           {renderSidebar()}
@@ -805,5 +896,187 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     textAlign: 'center',
     marginTop: Spacing.md,
+  },
+});
+
+const heroStyles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: '#FFFFFF',
+    paddingBottom: Spacing.xxl,
+  },
+  hero: {
+    height: 500,
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 20,
+    borderRadius: 24,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: '#0F172A',
+  },
+  heroDesktop: {
+    height: 500,
+  },
+  heroImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.huge,
+  },
+  heroContent: {
+    flex: 1,
+    maxWidth: 1200,
+    alignSelf: 'center',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroTitle: {
+    ...Typography.h1,
+    color: '#FFFFFF',
+    fontSize: Platform.OS === 'web' ? 56 : 32,
+    lineHeight: Platform.OS === 'web' ? 64 : 40,
+    marginBottom: Spacing.xl,
+    textAlign: 'center',
+    fontWeight: '900',
+  },
+  heroActions: {
+    flexDirection: 'row',
+    gap: Spacing.lg,
+  },
+  heroBtn: {
+    minWidth: 180,
+    height: 50,
+    backgroundColor: '#CFFAFE',
+    borderRadius: BorderRadius.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroBtnText: {
+    ...Typography.body,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  outlineBtn: {
+    minWidth: 180,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    borderRadius: BorderRadius.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  outlineBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  guideSection: {
+    paddingVertical: 80,
+    paddingHorizontal: Spacing.huge,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#000000',
+    marginBottom: Spacing.sm,
+    textAlign: 'center',
+  },
+  sectionSubtitle: {
+    ...Typography.body,
+    color: Colors.textMuted,
+    marginBottom: 40,
+    textAlign: 'center',
+    maxWidth: 600,
+  },
+  stepsContainer: {
+    width: '100%',
+    maxWidth: 1000,
+    gap: 40,
+  },
+  stepsDesktop: {
+    flexDirection: 'row',
+  },
+  stepCard: {
+    flex: 1,
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  stepTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#000000',
+    textAlign: 'center',
+  },
+  productsSection: {
+    paddingVertical: 80,
+    paddingHorizontal: Spacing.huge,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+  },
+  productsGrid: {
+    width: '100%',
+    maxWidth: 1200,
+    gap: Spacing.lg,
+  },
+  productsDesktop: {
+    flexDirection: 'row',
+  },
+  productCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.small,
+  },
+  productImagePlaceholder: {
+    height: 180,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  productBigRon: {
+    fontSize: 80,
+    fontWeight: '900',
+    color: 'rgba(255,255,255,0.2)',
+    position: 'absolute',
+  },
+  productBrandText: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  productInfo: {
+    padding: Spacing.lg,
+  },
+  productName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#000000',
+    marginBottom: 4,
+  },
+  productPriceLabel: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    marginBottom: Spacing.lg,
+  },
+  productActionBtn: {
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+  },
+  productActionBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primary,
   },
 });
