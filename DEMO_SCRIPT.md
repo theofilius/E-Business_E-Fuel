@@ -37,19 +37,17 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
    - Setelah login, tampilkan landing page hero E-FUEL.
    - Klik **Pesan Sekarang**.
    - Akan diarahkan ke halaman `/order` (Pilih Bensin dan Jumlah Liter).
-   - Tunjukkan card **Alamat Pengiriman** (statis, bisa klik "Ganti Alamat" untuk demo fitur belum aktif).
-   - Pilih **Jenis Kendaraan** (Motor/Mobil) dan ketik **Model Kendaraan**.
+   - Pilih **Lokasi** (Klik Gunakan Lokasi Saya atau drag pin di peta).
    - Pilih **Jenis BBM** (Misal: BLAZE 95).
-   - Pilih mode **Isi per Liter** atau **Isi per Nominal**, lalu gunakan tombol instan atau input manual.
-   - Buka dropdown **Metode Pembayaran** (Misal: QRIS atau BCA Virtual Account) di panel kanan/bawah.
-   - Klik **Lanjut Bayar**.
+   - Masukkan **Jumlah** (Bisa per Liter atau per Nominal Rupiah).
+   - Buka **Pilihan Pembayaran** (Misal: QRIS atau BCA Virtual Account).
+   - Klik **Pesan Sekarang**.
 4. **Simulasi Pembayaran**
    - Sistem akan menampilkan layar QRIS atau VA.
    - Perhatikan *countdown timer*.
    - Klik tombol **Saya Sudah Bayar** untuk simulasi sukses.
-   - Akan diarahkan otomatis ke tab **Pesanan Saya** (`/orders`).
-5. **Lacak Pesanan & Order History**
-   - Tunjukkan daftar riwayat pesanan.
+   - Akan diarahkan otomatis ke tab **Pesanan Saya**.
+5. **Lacak Pesanan**
    - Di daftar pesanan, klik **Lacak Pesanan** pada order terbaru.
    - Lihat peta *live tracking* dan status (Menunggu Driver -> Diterima -> Selesai). Demo
 

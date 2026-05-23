@@ -72,7 +72,7 @@ export default function OrdersScreen() {
     const info = STATUS_INFO[item.status] ?? { label: item.status, badge: 'default' as const };
     const canCancel = item.status === 'pending' || item.status === 'accepted';
     const canTrack = !['delivered', 'cancelled'].includes(item.status);
-    const isCompleted = item.status === 'delivered';
+    const hasActions = canCancel || canTrack;
 
     return (
       <Card key={item._id} style={styles.orderCard}>
@@ -98,69 +98,35 @@ export default function OrdersScreen() {
           <Text style={styles.detailValue}>{item.liters} Liter</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Harga/Liter</Text>
-          <Text style={styles.detailValue}>
-            {item.liters > 0 ? formatIDR(Math.round(item.totalPrice / item.liters)) : '-'}
-          </Text>
-        </View>
-        <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Alamat</Text>
           <Text style={[styles.detailValue, styles.detailAddress]} numberOfLines={2}>
             {item.location?.address || '-'}
           </Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Kendaraan</Text>
-          <Text style={styles.detailValue}>
-            {item.notes && item.notes.includes('Kendaraan:')
-              ? item.notes.split('.')[0].replace('Kendaraan: ', '')
-              : '-'}
-          </Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Pembayaran</Text>
-          <Text style={styles.detailValue}>
-            {item.paymentMethod ? item.paymentMethod.toUpperCase() : '-'}
-          </Text>
-        </View>
-
-        <View style={styles.totalDivider} />
-
-        <View style={styles.detailRow}>
-          <Text style={styles.totalLabel}>Total Bayar</Text>
+          <Text style={styles.detailLabel}>Total Bayar</Text>
           <Text style={styles.totalValue}>{formatIDR(item.totalPrice)}</Text>
         </View>
 
-        <View style={styles.actions}>
-          {canCancel && (
-            <Button
-              title="Batalkan"
-              variant="outline"
-              size="small"
-              onPress={() => confirmCancel(item._id)}
-            />
-          )}
-          {canTrack && (
-            <Button
-              title="Lacak Pesanan"
-              size="small"
-              onPress={() => router.push(`/order/${item._id}` as any)}
-            />
-          )}
-          {isCompleted && (
-            <TouchableOpacity
-              style={styles.invoiceBtn}
-              onPress={() => {
-                if (Platform.OS === 'web') {
-                  window.alert('Fitur download invoice segera hadir.');
-                }
-              }}
-            >
-              <Ionicons name="download-outline" size={16} color={Colors.primary} />
-              <Text style={styles.invoiceBtnText}>Download Invoice</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        {hasActions && (
+          <View style={styles.actions}>
+            {canCancel && (
+              <Button
+                title="Batalkan"
+                variant="outline"
+                size="small"
+                onPress={() => confirmCancel(item._id)}
+              />
+            )}
+            {canTrack && (
+              <Button
+                title="Lacak Pesanan"
+                size="small"
+                onPress={() => router.push(`/order/${item._id}` as any)}
+              />
+            )}
+          </View>
+        )}
       </Card>
     );
   };
@@ -196,7 +162,6 @@ export default function OrdersScreen() {
               <Ionicons name="receipt-outline" size={48} color={Colors.textMuted} />
               <Text style={styles.emptyTitle}>Belum ada pesanan</Text>
               <Text style={styles.muted}>Pesanan bensin Anda akan muncul di sini.</Text>
-              <Button title="Pesan Sekarang" size="small" onPress={() => router.push('/order')} />
             </View>
           ) : (
             <View style={styles.list}>{orders.map(renderOrder)}</View>
@@ -252,7 +217,6 @@ const styles = StyleSheet.create({
   fuelType: { ...Typography.bodyLarge, fontWeight: '800', color: Colors.text },
   orderId: { ...Typography.caption, color: Colors.textMuted, marginTop: 2 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginVertical: Spacing.md },
-  totalDivider: { height: 2, backgroundColor: Colors.border, marginVertical: Spacing.md },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -262,7 +226,6 @@ const styles = StyleSheet.create({
   detailLabel: { ...Typography.bodySmall, color: Colors.textMuted },
   detailValue: { ...Typography.bodySmall, color: Colors.text, fontWeight: '600' },
   detailAddress: { flex: 1, textAlign: 'right' },
-  totalLabel: { ...Typography.body, fontWeight: '800', color: Colors.text },
   totalValue: { ...Typography.body, color: Colors.primary, fontWeight: '800' },
   actions: {
     flexDirection: 'row',
@@ -271,17 +234,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     flexWrap: 'wrap',
   },
-  invoiceBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  invoiceBtnText: { ...Typography.bodySmall, color: Colors.primary, fontWeight: '700' },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
