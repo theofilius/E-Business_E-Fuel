@@ -35,7 +35,8 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
    - Gunakan kredensial: `demo@efuel.com` / `demo123`
 3. **Pesan Bensin**
    - Setelah login, tampilkan landing page hero E-FUEL.
-   - Klik **Pesan Sekarang** (halaman akan auto-scroll ke form pemesanan).
+   - Klik **Pesan Sekarang**.
+   - Akan diarahkan ke halaman `/order` (Pilih Bensin dan Jumlah Liter).
    - Pilih **Lokasi** (Klik Gunakan Lokasi Saya atau drag pin di peta).
    - Pilih **Jenis BBM** (Misal: BLAZE 95).
    - Masukkan **Jumlah** (Bisa per Liter atau per Nominal Rupiah).

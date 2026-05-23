@@ -55,9 +55,9 @@ export const Navbar = () => {
             <>
               <TouchableOpacity
                 style={styles.navLink}
-                onPress={() => router.push(user ? '/(tabs)' : '/(auth)/register')}
+                onPress={() => router.push(user ? '/order' : '/(auth)/register')}
               >
-                <Text style={[styles.navLinkText, isActive('(tabs)') && styles.activeText]}>
+                <Text style={[styles.navLinkText, isActive('order') && styles.activeText]}>
                   Pesan Bensin
                 </Text>
               </TouchableOpacity>
