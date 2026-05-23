@@ -52,15 +52,11 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 - Backend API secara tegas memvalidasi input enum (`IGNITE`, lowercase `cash`), yang menuntut konsistensi pengiriman data dari frontend.
 - Tidak ada fatal runtime error pada proses transpilasi Expo (Frontend) maupun Express (Backend).
 
-### 🟡 Secondary Gaps (Dapat Diabaikan/Mockup untuk Demo 2 Hari)
-1.  **Google OAuth Sign-In**:
-    *   Tombol Google Login sudah terdesain di form login/register namun belum ada logic integrasi di backend maupun frontend.
-2.  **Lupa Password**:
-    *   Link "Lupa Kata Sandi?" belum terhubung ke flow recovery email.
-3.  **Notification & Cart Badge**:
-    *   Badge notifikasi dan cart di navbar selalu bernilai `0`. Fitur cart juga kurang relevan untuk flow pemesanan BBM langsung.
-4.  **Halaman FAQ & Bantuan**:
-    *   Belum ada dedicated FAQ page atau halaman bantuan pelanggan.
+### 🟡 Secondary Gaps (Telah Diperbaiki untuk Demo)
+1.  ~~**Google OAuth Sign-In**~~: ✅ *Telah diberi disabled state dan alert "Segera Hadir".*
+2.  ~~**Lupa Password**~~: ✅ *Telah diberi alert "Segera Hadir".*
+3.  ~~**Onboarding CTA & Testimonials**~~: ✅ *Tombol "Lihat Cara Kerja" kini melakukan scroll. Testimonials menggunakan auto-generated avatars dari `ui-avatars.com`.*
+4.  ~~**Admin Dashboard Polish**~~: ✅ *Telah diberi border gradasi atas yang membedakan tipe statistik.*
 
 ---
 

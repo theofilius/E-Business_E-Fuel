@@ -93,17 +93,17 @@ export default function AdminDashboard() {
           {/* Stats Grid */}
           {stats && (
             <View style={styles.statsGrid}>
-              <Card style={styles.statCard}>
+              <Card style={[styles.statCard, { borderTopColor: Colors.success, borderTopWidth: 4 }]}>
                 <View style={styles.statIconBox}><Ionicons name="cash-outline" size={24} color={Colors.success} /></View>
                 <Text style={styles.statLabel}>Total Revenue</Text>
                 <Text style={styles.statValue}>{formatIDR(stats.revenue)}</Text>
               </Card>
-              <Card style={styles.statCard}>
+              <Card style={[styles.statCard, { borderTopColor: Colors.info, borderTopWidth: 4 }]}>
                 <View style={[styles.statIconBox, { backgroundColor: '#EFF6FF' }]}><Ionicons name="receipt-outline" size={24} color={Colors.info} /></View>
                 <Text style={styles.statLabel}>Total Orders</Text>
                 <Text style={styles.statValue}>{stats.totalOrders}</Text>
               </Card>
-              <Card style={styles.statCard}>
+              <Card style={[styles.statCard, { borderTopColor: Colors.warning, borderTopWidth: 4 }]}>
                 <View style={[styles.statIconBox, { backgroundColor: '#FFFBEB' }]}><Ionicons name="people-outline" size={24} color={Colors.warning} /></View>
                 <Text style={styles.statLabel}>Active Users</Text>
                 <Text style={styles.statValue}>{stats.totalCustomers} Customers, {stats.totalDrivers} Drivers</Text>

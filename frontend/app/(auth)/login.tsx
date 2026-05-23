@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -91,7 +92,7 @@ export default function LoginScreen() {
           onSubmitEditing={handleLogin}
         />
 
-        <TouchableOpacity style={styles.forgotBtn}>
+        <TouchableOpacity style={styles.forgotBtn} onPress={() => Alert.alert('Segera Hadir', 'Fitur lupa kata sandi sedang dalam pengembangan.')}>
           <Text style={styles.forgotText}>Lupa kata sandi?</Text>
         </TouchableOpacity>
 
@@ -108,9 +109,9 @@ export default function LoginScreen() {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity style={styles.googleBtn}>
+        <TouchableOpacity style={[styles.googleBtn, { opacity: 0.5 }]} disabled={true} onPress={() => Alert.alert('Segera Hadir', 'Fitur login dengan Google sedang dalam pengembangan.')}>
           <Ionicons name="logo-google" size={20} color="#EA4335" />
-          <Text style={styles.googleBtnText}>Masuk dengan Google</Text>
+          <Text style={styles.googleBtnText}>Masuk dengan Google (Segera Hadir)</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>

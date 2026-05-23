@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Platform, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width > 1024;
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const products = [
     { name: 'RON 92 IGNITE', ron: '92', color: '#14B8A6', price: 12500 },
@@ -41,7 +42,7 @@ export default function OnboardingScreen() {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <ScrollView ref={scrollViewRef} style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Hero Section */}
       <View style={[styles.hero, isDesktop && styles.heroDesktop]}>
         <Image source={HERO_IMAGE} style={styles.heroImage} />
@@ -58,7 +59,10 @@ export default function OnboardingScreen() {
                   onPress={() => router.push('/(auth)/register')} 
                   style={styles.heroBtn}
                 />
-                <TouchableOpacity style={styles.outlineBtn}>
+                <TouchableOpacity 
+                  style={styles.outlineBtn}
+                  onPress={() => scrollViewRef.current?.scrollTo({ y: 550, animated: true })}
+                >
                    <Text style={styles.outlineBtnText}>Lihat Cara Kerja</Text>
                 </TouchableOpacity>
               </View>
@@ -127,9 +131,10 @@ export default function OnboardingScreen() {
                <Card key={t.name} style={styles.testimonialCard}>
                   <Text style={styles.testimonialText}>{t.text}</Text>
                   <View style={styles.testiUser}>
-                     <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={24} color={Colors.textMuted} />
-                     </View>
+                     <Image 
+                       source={{ uri: `https://ui-avatars.com/api/?name=${t.name.split(' ').join('+')}&background=CFE2E8&color=334E52&bold=true` }}
+                       style={styles.avatarPlaceholder} 
+                     />
                      <View>
                         <Text style={styles.testiName}>{t.name}</Text>
                         <Text style={styles.testiRole}>{t.role}</Text>

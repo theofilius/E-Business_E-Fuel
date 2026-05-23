@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -164,9 +165,9 @@ export default function RegisterScreen() {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity style={styles.googleBtn}>
+        <TouchableOpacity style={[styles.googleBtn, { opacity: 0.5 }]} disabled={true} onPress={() => Alert.alert('Segera Hadir', 'Fitur daftar dengan Google sedang dalam pengembangan.')}>
           <Ionicons name="logo-google" size={20} color="#EA4335" />
-          <Text style={styles.googleBtnText}>Daftar dengan Google</Text>
+          <Text style={styles.googleBtnText}>Daftar dengan Google (Segera Hadir)</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
