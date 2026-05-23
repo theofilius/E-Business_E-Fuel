@@ -8,7 +8,7 @@ import { Colors, Typography, Spacing, Shadows, BorderRadius } from '../../consta
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '../../components/ui/Card';
 
-const HERO_IMAGE = '/Users/theofilius/.gemini/antigravity/brain/ab3308c8-4208-421e-b4ec-bef351193ab2/blue_car_fuel_hero_1778297760680.png';
+const HERO_IMAGE = require('../../assets/images/hero_image.png');
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -16,10 +16,10 @@ export default function OnboardingScreen() {
   const isDesktop = width > 1024;
 
   const products = [
-    { name: 'RON 92 IGNITE', ron: '92', color: '#14B8A6' },
-    { name: 'RON 95 BLAZE', ron: '95', color: '#F43F5E' },
-    { name: 'RON 98 QUANTUM', ron: '98', color: '#8B5CF6' },
-    { name: 'CN 51 DIESEL', ron: '51', color: '#854D0E' },
+    { name: 'RON 92 IGNITE', ron: '92', color: '#14B8A6', price: 12500 },
+    { name: 'RON 95 BLAZE', ron: '95', color: '#F43F5E', price: 13500 },
+    { name: 'RON 98 QUANTUM', ron: '98', color: '#8B5CF6', price: 15000 },
+    { name: 'CN 51 DIESEL', ron: '51', color: '#854D0E', price: 14000 },
   ];
 
   const testimonials = [
@@ -44,7 +44,7 @@ export default function OnboardingScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Hero Section */}
       <View style={[styles.hero, isDesktop && styles.heroDesktop]}>
-        <Image source={{ uri: HERO_IMAGE }} style={styles.heroImage} />
+        <Image source={HERO_IMAGE} style={styles.heroImage} />
         <LinearGradient
           colors={['rgba(15, 23, 42, 0.4)', 'rgba(15, 23, 42, 0.7)']}
           style={styles.heroOverlay}
@@ -109,7 +109,7 @@ export default function OnboardingScreen() {
                   </View>
                   <View style={styles.productInfo}>
                      <Text style={styles.productName}>{p.name}</Text>
-                     <Text style={styles.productPriceLabel}>Rp /Liter</Text>
+                     <Text style={styles.productPriceLabel}>Rp {p.price.toLocaleString('id-ID')} /Liter</Text>
                      <TouchableOpacity style={styles.productActionBtn}>
                         <Text style={styles.productActionBtnText}>Pesan Sekarang</Text>
                      </TouchableOpacity>
