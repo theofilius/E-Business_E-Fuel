@@ -62,6 +62,7 @@ export default function PremiumPayment() {
   const priceNum = parseInt(price, 10) || 49900;
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
   const [timeLeft, setTimeLeft] = useState(5 * 60); // 5 menit untuk QRIS
   const [selectedBank, setSelectedBank] = useState<BankKey>('bca');
   const [copied, setCopied] = useState(false);
@@ -101,8 +102,14 @@ export default function PremiumPayment() {
   /**
    * Tombol "Saya Sudah Bayar" — SATU-SATUNYA tempat yang memanggil updatePremium.
    * Checkout hanya navigasi ke sini; tidak ada aktivasi di sana.
+   *
+   * NOTE: Tidak menggunakan Alert.alert() untuk navigasi karena di React Native Web
+   * Alert.alert() jatuh ke window.alert/confirm yang tidak memanggil onPress callbacks,
+   * sehingga router.replace() tidak pernah dieksekusi. Solusi: inline succeeded state
+   * + auto-redirect.
    */
   const handleConfirm = async () => {
+    if (isProcessing || succeeded) return; // anti double-tap
     setIsProcessing(true);
     try {
       const premiumUntil = calcPremiumUntil(planLabel);
@@ -117,25 +124,13 @@ export default function PremiumPayment() {
       // 2. Update local store + AsyncStorage
       await updatePremium(true, planLabel, premiumUntil);
 
-      // 3. Alert sukses dengan pilihan navigasi
-      Alert.alert(
-        '🎉 Pembayaran Berhasil!',
-        `Selamat! Akun Anda sekarang berstatus E-Fuel Premium (${planLabel}). Nikmati benefit eksklusif mulai sekarang.`,
-        [
-          {
-            text: 'Mulai Pesan Bensin',
-            onPress: () => router.replace('/order' as any),
-          },
-          {
-            text: 'Kembali ke Home',
-            onPress: () => router.replace('/(tabs)' as any),
-          },
-        ]
-      );
+      // 3. Tampilkan sukses inline, lalu redirect ke /premium setelah 2 detik
+      setSucceeded(true);
+      setTimeout(() => router.replace('/premium' as any), 2000);
     } catch (err: any) {
-      Alert.alert('Pembayaran Gagal', err?.message || 'Terjadi kesalahan. Coba lagi.');
-    } finally {
+      // Hanya di error path kita kembalikan isProcessing ke false (sukses → unmount)
       setIsProcessing(false);
+      Alert.alert('Pembayaran Gagal', err?.message || 'Terjadi kesalahan. Coba lagi.');
     }
   };
 
@@ -252,6 +247,25 @@ export default function PremiumPayment() {
   };
 
   // ── Render utama ─────────────────────────────────────────────────────────
+
+  // Tampilan sukses: muncul setelah "Sudah Bayar" berhasil, sebelum auto-redirect 2 detik
+  if (succeeded) {
+    return (
+      <View style={styles.successScreen}>
+        <View style={styles.successCard}>
+          <View style={styles.successIconWrap}>
+            <Ionicons name="checkmark-circle" size={72} color={Colors.success} />
+          </View>
+          <Text style={styles.successTitle}>Premium Berhasil Diaktifkan! 🎉</Text>
+          <Text style={styles.successSub}>
+            Paket <Text style={{ fontWeight: '800' }}>{planLabel}</Text> sudah aktif di akun Anda.
+          </Text>
+          <ActivityIndicator size="small" color={Colors.textMuted} style={{ marginTop: Spacing.lg }} />
+          <Text style={styles.successRedirect}>Mengalihkan ke halaman Premium...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
@@ -519,4 +533,45 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   note: { ...Typography.caption, color: Colors.textMuted, textAlign: 'center' },
+
+  // ── Success screen ─────────────────────────────────────────────────────────
+  successScreen: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.lg,
+    minHeight: 400,
+  },
+  successCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    ...Shadows.large,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  successIconWrap: {
+    marginBottom: Spacing.lg,
+  },
+  successTitle: {
+    ...Typography.h3,
+    fontWeight: '800',
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+  },
+  successSub: {
+    ...Typography.body,
+    color: Colors.textMuted,
+    textAlign: 'center',
+  },
+  successRedirect: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    marginTop: Spacing.sm,
+  },
 });
