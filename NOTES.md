@@ -52,13 +52,19 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 - Backend API secara tegas memvalidasi input enum (`IGNITE`, lowercase `cash`), yang menuntut konsistensi pengiriman data dari frontend.
 - Tidak ada fatal runtime error pada proses transpilasi Expo (Frontend) maupun Express (Backend).
 
-### 🟢 Premium Subscription (Baru — Ditambahkan Day 4)
+### 🟢 Premium Subscription (Baru — Ditambahkan Day 4, Bug Fix Day 5)
 1.  ✅ **Halaman `/premium`**: Hero section dengan gradient, 5 paket (1 Minggu–1 Tahun), tabel benefit Basic vs Premium.
-2.  ✅ **Halaman `/premium/checkout`**: Card checkout di tengah, 4 metode pembayaran (QRIS, GoPay, DANA, VA), simulasi pembayaran sukses, update backend + store.
-3.  ✅ **Backend endpoint `PUT /api/auth/premium`**: Update `isPremium`, `premiumPlan`, `premiumUntil` ke database MongoDB via JWT-protected route.
-4.  ✅ **User Model extended**: Tambah `isPremium` (Boolean, default false), `premiumPlan` (String), `premiumUntil` (Date).
-5.  ✅ **Demo accounts**: `demo@efuel.com` (Basic), `premium@efuel.com / premium123` (Premium aktif 3 Bulan).
-6.  ✅ **Order Summary Logic**: Basic = tidak ada diskon premium. Premium = diskon Rp300/L + ongkir gratis jika ≥10L.
+2.  ✅ **Halaman `/premium/checkout`**: Card checkout di tengah, 4 metode pembayaran (QRIS, GoPay, DANA, VA). "Bayar Sekarang" hanya **navigasi** ke `/premium/payment` — premium belum aktif di sini.
+3.  ✅ **Halaman `/premium/payment`** *(baru, Day 5)*: Simulasi pembayaran per metode:
+    *   **QRIS**: QR placeholder besar + countdown 5 menit + instruksi scan.
+    *   **Virtual Account**: Pilih bank (BCA/BNI/Mandiri), nomor VA dummy, tombol "Salin", instruksi transfer.
+    *   **GoPay/DANA**: Icon wallet + 5 langkah instruksi pembayaran.
+    *   Tombol **"Saya Sudah Bayar"** adalah SATU-SATUNYA titik yang memanggil `PUT /api/auth/premium`.
+4.  ✅ **Backend endpoint `PUT /api/auth/premium`**: Update `isPremium`, `premiumPlan`, `premiumUntil` ke database MongoDB via JWT-protected route.
+5.  ✅ **User Model extended**: Tambah `isPremium` (Boolean, default false), `premiumPlan` (String), `premiumUntil` (Date).
+6.  ✅ **Demo accounts**: `demo@efuel.com` (Basic), `premium@efuel.com / premium123` (Premium aktif 3 Bulan).
+7.  ✅ **Order Summary Logic**: Basic = tidak ada diskon premium. Premium = diskon Rp300/L + ongkir gratis jika ≥10L.
+8.  ✅ **Register selalu Basic** *(fix Day 5)*: Backend register controller mengembalikan `isPremium: false` secara eksplisit. Frontend `signUp` di `useAuthStore` meng-override premium fields ke `false` secara defensif — tidak ada stale state yang bisa terbawa.
 
 ---
 

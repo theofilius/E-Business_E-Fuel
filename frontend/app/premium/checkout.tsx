@@ -5,14 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
-import { authService } from '../../services/authService';
 
 type PaymentMethod = 'qris' | 'gopay' | 'dana' | 'va';
 
@@ -26,27 +23,15 @@ const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; sub?: string }[] = [
 const formatIDR = (n: number) =>
   'IDR ' + n.toLocaleString('id-ID');
 
-/** Hitung tanggal premiumUntil berdasarkan label paket */
-function calcPremiumUntil(planLabel: string): string {
-  const now = new Date();
-  if (planLabel.includes('Minggu')) now.setDate(now.getDate() + 7);
-  else if (planLabel === '1 Bulan') now.setMonth(now.getMonth() + 1);
-  else if (planLabel === '3 Bulan') now.setMonth(now.getMonth() + 3);
-  else if (planLabel === '6 Bulan') now.setMonth(now.getMonth() + 6);
-  else if (planLabel === '1 Tahun') now.setFullYear(now.getFullYear() + 1);
-  return now.toISOString();
-}
-
 export default function PremiumCheckout() {
   const router = useRouter();
-  const { user, updatePremium } = useAuthStore();
+  const { user } = useAuthStore();
   const { planLabel = '1 Bulan', price = '49900' } = useLocalSearchParams<{
     planLabel: string;
     price: string;
   }>();
 
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('qris');
-  const [isProcessing, setIsProcessing] = useState(false);
 
   // Guard: harus login
   if (!user) {
@@ -56,44 +41,11 @@ export default function PremiumCheckout() {
 
   const priceNum = parseInt(price, 10) || 49900;
 
-  const handlePay = async () => {
-    setIsProcessing(true);
-    try {
-      // Simulasi delay pembayaran
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-
-      const premiumUntil = calcPremiumUntil(planLabel);
-
-      // Update ke backend
-      await authService.updatePremium({
-        isPremium: true,
-        premiumPlan: planLabel,
-        premiumUntil,
-      });
-
-      // Update local store + storage
-      await updatePremium(true, planLabel, premiumUntil);
-
-      // Navigasi ke halaman sukses atau kembali ke home
-      Alert.alert(
-        '🎉 Pembayaran Berhasil!',
-        `Selamat! Akun Anda sekarang berstatus E-Fuel Premium (${planLabel}). Nikmati benefit eksklusif mulai sekarang.`,
-        [
-          {
-            text: 'Mulai Pesan Bensin',
-            onPress: () => router.replace('/order' as any),
-          },
-          {
-            text: 'Kembali ke Home',
-            onPress: () => router.replace('/(tabs)' as any),
-          },
-        ]
-      );
-    } catch (err: any) {
-      Alert.alert('Pembayaran Gagal', err?.message || 'Terjadi kesalahan. Coba lagi.');
-    } finally {
-      setIsProcessing(false);
-    }
+  /** Arahkan ke halaman simulasi pembayaran — premium BELUM aktif di sini */
+  const handlePay = () => {
+    router.push(
+      `/premium/payment?method=${selectedMethod}&planLabel=${encodeURIComponent(planLabel)}&price=${price}` as any
+    );
   };
 
   return (
@@ -160,16 +112,11 @@ export default function PremiumCheckout() {
 
           {/* Pay Button */}
           <TouchableOpacity
-            style={[styles.payBtn, isProcessing && styles.payBtnLoading]}
+            style={styles.payBtn}
             onPress={handlePay}
-            disabled={isProcessing}
             activeOpacity={0.85}
           >
-            {isProcessing ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.payBtnText}>Bayar Sekarang</Text>
-            )}
+            <Text style={styles.payBtnText}>Bayar Sekarang</Text>
           </TouchableOpacity>
 
           <Text style={styles.note}>
@@ -319,7 +266,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: Spacing.md,
   },
-  payBtnLoading: { opacity: 0.7 },
   payBtnText: {
     ...Typography.bodySmall,
     fontWeight: '800',

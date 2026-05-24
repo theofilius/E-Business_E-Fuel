@@ -71,7 +71,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         password: payload.password,
         phone: payload.phone.trim(),
       });
-      const { token, ...user } = data;
+      const { token, ...rawUser } = data;
+      // Akun baru SELALU Basic — override defensif agar tidak ada state premium lama yang terbawa
+      const user = { ...rawUser, isPremium: false as const, premiumPlan: null, premiumUntil: null };
       await storage.setItem(STORAGE_KEYS.TOKEN, token);
       await storage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
       set({ token, user, isSubmitting: false, error: null });

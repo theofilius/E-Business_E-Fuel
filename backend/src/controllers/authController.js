@@ -32,9 +32,10 @@ const register = async (req, res, next) => {
           email: user.email,
           phone: user.phone,
           role: user.role,
-          isPremium: user.isPremium || false,
-          premiumPlan: user.premiumPlan || null,
-          premiumUntil: user.premiumUntil || null,
+          // Akun baru SELALU Basic — tidak ada jalan jadi premium lewat register
+          isPremium: false,
+          premiumPlan: null,
+          premiumUntil: null,
           token: generateToken(user._id),
         },
       });
