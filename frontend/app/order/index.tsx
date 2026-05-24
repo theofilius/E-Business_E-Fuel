@@ -37,7 +37,7 @@ const formatIDR = (n: number) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
 
 export default function OrderScreen() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const {
     fuelProducts,
     fetchFuelPrices,
@@ -77,10 +77,17 @@ export default function OrderScreen() {
     [fuelProducts, selectedFuel]
   );
 
+  const isPremium = user?.isPremium === true;
   const pricePerLiter = selectedProduct?.pricePerLiter ?? 0;
   const serviceFee = selectedProduct?.serviceFee ?? 5000;
   const subtotal = pricePerLiter * liters;
-  const total = selectedProduct ? subtotal + serviceFee : 0;
+
+  // Premium benefits
+  const premiumFuelDiscount = isPremium ? 300 * liters : 0;
+  const shippingFee = isPremium && liters >= 10 ? 0 : 10000;
+  const total = selectedProduct
+    ? subtotal + shippingFee + serviceFee - premiumFuelDiscount
+    : 0;
 
   // ===== Liter handling =====
   const pickQuickLiter = (val: number) => {
@@ -488,7 +495,14 @@ export default function OrderScreen() {
       </Card>
 
       <Card style={styles.summaryCard}>
-        <Text style={styles.sidebarLabel}>Rincian Pesanan</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
+          <Text style={[styles.sidebarLabel, { marginBottom: 0 }]}>Rincian Pesanan</Text>
+          {isPremium && (
+            <View style={{ backgroundColor: Colors.primary, paddingHorizontal: 8, paddingVertical: 3, borderRadius: BorderRadius.pill }}>
+              <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.5 }}>⭐ PREMIUM</Text>
+            </View>
+          )}
+        </View>
 
         <View style={styles.orderDetailRow}>
           <Text style={styles.orderDetailText}>
@@ -497,17 +511,32 @@ export default function OrderScreen() {
           <Text style={styles.orderDetailPrice}>{formatIDR(subtotal)}</Text>
         </View>
         <View style={styles.orderDetailRow}>
-          <Text style={styles.orderDetailText}>Ongkos Kirim</Text>
-          <Text style={styles.orderDetailPrice}>{formatIDR(10000)}</Text>
+          <Text style={styles.orderDetailText}>
+            Ongkos Kirim{isPremium && liters >= 10 ? ' 🎉' : ''}
+          </Text>
+          <Text
+            style={[
+              styles.orderDetailPrice,
+              isPremium && liters >= 10 && { color: Colors.success, textDecorationLine: 'line-through' as const },
+            ]}
+          >
+            {isPremium && liters >= 10 ? 'Gratis' : formatIDR(10000)}
+          </Text>
         </View>
         <View style={styles.orderDetailRow}>
-          <Text style={[styles.orderDetailText, { color: Colors.success }]}>
-            Diskon Pelanggan
-          </Text>
-          <Text style={[styles.orderDetailPrice, { color: Colors.success }]}>
-            - {formatIDR(5000)}
-          </Text>
+          <Text style={styles.orderDetailText}>Biaya Layanan</Text>
+          <Text style={styles.orderDetailPrice}>{formatIDR(serviceFee)}</Text>
         </View>
+        {isPremium && (
+          <View style={styles.orderDetailRow}>
+            <Text style={[styles.orderDetailText, { color: Colors.success }]}>
+              Diskon Premium (Rp300/L)
+            </Text>
+            <Text style={[styles.orderDetailPrice, { color: Colors.success }]}>
+              - {formatIDR(premiumFuelDiscount)}
+            </Text>
+          </View>
+        )}
 
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total</Text>

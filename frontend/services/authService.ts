@@ -31,4 +31,13 @@ export const authService = {
     const res = await api.put('/auth/profile', payload);
     return res.data.data;
   },
+
+  async updatePremium(payload: {
+    isPremium: boolean;
+    premiumPlan: string;
+    premiumUntil: string;
+  }): Promise<User> {
+    const res = await api.put('/auth/premium', payload);
+    return res.data.data;
+  },
 };

@@ -52,6 +52,16 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 - Backend API secara tegas memvalidasi input enum (`IGNITE`, lowercase `cash`), yang menuntut konsistensi pengiriman data dari frontend.
 - Tidak ada fatal runtime error pada proses transpilasi Expo (Frontend) maupun Express (Backend).
 
+### 🟢 Premium Subscription (Baru — Ditambahkan Day 4)
+1.  ✅ **Halaman `/premium`**: Hero section dengan gradient, 5 paket (1 Minggu–1 Tahun), tabel benefit Basic vs Premium.
+2.  ✅ **Halaman `/premium/checkout`**: Card checkout di tengah, 4 metode pembayaran (QRIS, GoPay, DANA, VA), simulasi pembayaran sukses, update backend + store.
+3.  ✅ **Backend endpoint `PUT /api/auth/premium`**: Update `isPremium`, `premiumPlan`, `premiumUntil` ke database MongoDB via JWT-protected route.
+4.  ✅ **User Model extended**: Tambah `isPremium` (Boolean, default false), `premiumPlan` (String), `premiumUntil` (Date).
+5.  ✅ **Demo accounts**: `demo@efuel.com` (Basic), `premium@efuel.com / premium123` (Premium aktif 3 Bulan).
+6.  ✅ **Order Summary Logic**: Basic = tidak ada diskon premium. Premium = diskon Rp300/L + ongkir gratis jika ≥10L.
+
+---
+
 ### 🟡 Secondary Gaps (Telah Diperbaiki untuk Demo)
 1.  ~~**Google OAuth Sign-In**~~: ✅ *Telah diberi disabled state dan alert "Segera Hadir".*
 2.  ~~**Lupa Password**~~: ✅ *Telah diberi alert "Segera Hadir".*

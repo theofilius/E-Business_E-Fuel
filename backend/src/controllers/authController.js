@@ -32,6 +32,9 @@ const register = async (req, res, next) => {
           email: user.email,
           phone: user.phone,
           role: user.role,
+          isPremium: user.isPremium || false,
+          premiumPlan: user.premiumPlan || null,
+          premiumUntil: user.premiumUntil || null,
           token: generateToken(user._id),
         },
       });
@@ -71,6 +74,9 @@ const login = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        isPremium: user.isPremium || false,
+        premiumPlan: user.premiumPlan || null,
+        premiumUntil: user.premiumUntil || null,
         token: generateToken(user._id),
       },
     });
@@ -145,4 +151,41 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getProfile, updateProfile };
+// @desc    Update user premium status (simulated payment)
+// @route   PUT /api/auth/premium
+// @access  Private
+const updatePremium = async (req, res, next) => {
+  try {
+    const { isPremium, premiumPlan, premiumUntil } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    user.isPremium = isPremium === true;
+    if (premiumPlan !== undefined) user.premiumPlan = premiumPlan;
+    if (premiumUntil !== undefined) user.premiumUntil = premiumUntil;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      success: true,
+      data: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        role: updatedUser.role,
+        isPremium: updatedUser.isPremium,
+        premiumPlan: updatedUser.premiumPlan,
+        premiumUntil: updatedUser.premiumUntil,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile, updatePremium };

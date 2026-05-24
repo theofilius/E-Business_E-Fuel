@@ -6,6 +6,10 @@ export interface User {
   phone: string;
   role: 'customer' | 'admin' | 'driver';
   avatar?: string | null;
+  // Premium fields:
+  isPremium?: boolean;
+  premiumPlan?: string | null;
+  premiumUntil?: string | null;
   // Driver-only fields:
   vehicle?: string | null;
   plateNumber?: string | null;

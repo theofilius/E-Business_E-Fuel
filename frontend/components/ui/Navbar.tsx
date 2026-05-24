@@ -80,8 +80,13 @@ export const Navbar = () => {
               <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
                 <Text style={styles.navLinkText}>Area Layanan</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
-                <Text style={styles.navLinkText}>Premium</Text>
+              <TouchableOpacity
+                style={styles.navLink}
+                onPress={() => router.push('/premium' as any)}
+              >
+                <Text style={[styles.navLinkText, isActive('premium') && styles.activeText]}>
+                  Premium
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
                 <Text style={styles.navLinkText}>FAQs</Text>

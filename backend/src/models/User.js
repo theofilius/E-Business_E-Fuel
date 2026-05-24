@@ -37,6 +37,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // ===== Premium fields =====
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    premiumPlan: {
+      type: String,
+      default: null,
+    },
+    premiumUntil: {
+      type: Date,
+      default: null,
+    },
+
     // ===== Driver-only fields (used when role === 'driver') =====
     vehicle: {
       type: String,

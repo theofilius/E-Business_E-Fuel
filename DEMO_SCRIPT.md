@@ -51,6 +51,22 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
    - Di daftar pesanan, klik **Lacak Pesanan** pada order terbaru.
    - Lihat peta *live tracking* dan status (Menunggu Driver -> Diterima -> Selesai). Demo
 
+### 2.5 Skenario Premium: Upgrade & Manfaat (1.5 Menit)
+*Aksi: Masih di tab Customer, klik "Premium" di navbar.*
+- **Jelaskan**: "E-Fuel memiliki program membership Premium untuk pelanggan setia. Dengan berlangganan, pengguna mendapatkan berbagai keuntungan eksklusif."
+- **Demo Interaksi**:
+  1. Klik **Premium** di navbar → tampil halaman Premium dengan hero gradient.
+  2. Scroll ke bawah untuk lihat paket (1 Minggu s.d. 1 Tahun) dan tabel benefit.
+  3. Klik **Beli Sekarang** pada paket **3 Bulan** (badge "Recommend").
+  4. Di halaman Checkout, pilih metode pembayaran (mis. GoPay).
+  5. Klik **Bayar Sekarang** → simulasi loading ~1 detik → Alert sukses.
+  6. Klik **Mulai Pesan Bensin** → buka halaman order.
+  7. Perhatikan badge **⭐ PREMIUM** di Rincian Pesanan.
+  8. Pilih bensin & set 10L → lihat **Diskon Premium (Rp300/L)** dan **Ongkir: Gratis**.
+
+*Demo Premium account (sudah aktif tanpa perlu upgrade):*
+- Login sebagai `premium@efuel.com` / `premium123` untuk demo yang sudah berlangganan.
+
 ### 3. Skenario Driver: Menerima Order (2 Menit)
 *Aksi: Buka tab baru / incognito, lalu login sebagai Driver.*
 - **Akun**: `driver1@efuel.com` / `driver123`

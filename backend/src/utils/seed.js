@@ -18,6 +18,21 @@ const DEMO_CUSTOMER = {
   email: 'demo@efuel.com',
   password: 'demo123',
   phone: '081200000000',
+  isPremium: false,
+};
+
+// premiumUntil = 6 bulan dari tanggal seed
+const premiumUntilDate = new Date();
+premiumUntilDate.setMonth(premiumUntilDate.getMonth() + 6);
+
+const DEMO_PREMIUM = {
+  name: 'Premium User',
+  email: 'premium@efuel.com',
+  password: 'premium123',
+  phone: '081200000099',
+  isPremium: true,
+  premiumPlan: '3 Bulan',
+  premiumUntil: premiumUntilDate,
 };
 
 const DEMO_ADMIN = {
@@ -81,17 +96,19 @@ const seed = async () => {
   console.log('🗑️  Cleared all existing orders');
 
   await upsertUser(DEMO_CUSTOMER);
+  await upsertUser(DEMO_PREMIUM);
   await upsertUser(DEMO_ADMIN);
   for (const driver of DEMO_DRIVERS) {
     await upsertUser(driver);
   }
 
   console.log('\n🌱 Seeding complete. Demo accounts:');
-  console.log('   Customer → demo@efuel.com    / demo123');
-  console.log('   Admin    → admin@efuel.com   / admin123');
-  console.log('   Driver 1 → driver1@efuel.com / driver123');
-  console.log('   Driver 2 → driver2@efuel.com / driver123');
-  console.log('   Driver 3 → driver3@efuel.com / driver123');
+  console.log('   Customer (Basic)   → demo@efuel.com    / demo123');
+  console.log('   Customer (Premium) → premium@efuel.com / premium123');
+  console.log('   Admin              → admin@efuel.com   / admin123');
+  console.log('   Driver 1           → driver1@efuel.com / driver123');
+  console.log('   Driver 2           → driver2@efuel.com / driver123');
+  console.log('   Driver 3           → driver3@efuel.com / driver123');
 
   await mongoose.connection.close();
   process.exit(0);

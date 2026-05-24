@@ -20,6 +20,8 @@ interface AuthState {
   }) => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
+  /** Update premium fields locally + persist to storage (called after checkout) */
+  updatePremium: (isPremium: boolean, premiumPlan: string, premiumUntil: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -87,4 +89,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  // Update premium status locally + persist to storage
+  updatePremium: async (isPremium, premiumPlan, premiumUntil) => {
+    set((state) => {
+      if (!state.user) return {};
+      const updatedUser = { ...state.user, isPremium, premiumPlan, premiumUntil };
+      storage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+      return { user: updatedUser };
+    });
+  },
 }));

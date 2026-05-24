@@ -19,7 +19,8 @@
   - Admin -> `/(admin)`
 
 ## 3. Demo Accounts & Role Flow
-- [x] **Customer**: `demo@efuel.com` / `demo123`
+- [x] **Customer (Basic)**: `demo@efuel.com` / `demo123` — isPremium: false
+- [x] **Customer (Premium)**: `premium@efuel.com` / `premium123` — isPremium: true, plan "3 Bulan"
 - [x] **Driver**: `driver1@efuel.com` / `driver123`
 - [x] **Admin**: `admin@efuel.com` / `admin123`
 
@@ -52,6 +53,17 @@ Tombol-tombol berikut sudah diberi Alert pop-up ("Segera Hadir") atau state tran
 - ⚠️ **Avatar Testimonial (Onboarding)**: Saat ini saya menggunakan API external `https://ui-avatars.com` untuk generate avatar inisial nama secara dinamis. 
   - **Risiko**: Jika saat presentasi demo tidak ada koneksi internet sama sekali, avatar ini akan gagal load (broken image link).
   - **Saran**: Jika presentasi akan sepenuhnya offline, sebaiknya avatar diganti dengan local icon (seperti sebelumnya) atau asset lokal. *Saya tidak mengubahnya saat ini menunggu konfirmasi Anda sesuai perintah "laporkan dulu sebelum mengubah".*
+
+## 10. Premium Feature Checklist
+- [x] Halaman `/premium` dapat diakses dari navbar (klik "Premium").
+- [x] Hero, 5 paket, dan tabel benefit tampil sesuai Figma.
+- [x] Klik "Beli Sekarang" → masuk `/premium/checkout` (harus login).
+- [x] Checkout: pilih metode pembayaran, klik "Bayar Sekarang" → simulasi sukses.
+- [x] Setelah bayar: user menjadi Premium di database & local state.
+- [x] Order page Basic: tidak ada diskon premium, tidak ada "Gratis Ongkir".
+- [x] Order page Premium: badge ⭐ PREMIUM, Diskon Rp300/L, Ongkir gratis jika ≥10L.
+- [x] Login `premium@efuel.com` → langsung aktif Premium tanpa perlu upgrade.
+- [x] Admin & Driver flow tidak terpengaruh.
 
 ## 9. Known Issues (Aman untuk presentasi)
 1. **Google OAuth & Lupa Password**: Flow belum selesai di backend, sudah di-handle dengan alert pop-up informatif. Hindari mengklik ini saat presentasi utama kecuali ditanya juri/penguji.

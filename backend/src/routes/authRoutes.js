@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { register, login, getProfile, updateProfile } = require('../controllers/authController');
+const { register, login, getProfile, updateProfile, updatePremium } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
@@ -35,5 +35,8 @@ router.get('/profile', protect, getProfile);
 
 // @route PUT /api/auth/profile
 router.put('/profile', protect, updateProfile);
+
+// @route PUT /api/auth/premium
+router.put('/premium', protect, updatePremium);
 
 module.exports = router;
