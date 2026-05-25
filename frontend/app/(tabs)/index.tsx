@@ -15,6 +15,8 @@ export default function CustomerLandingScreen() {
   const isDesktop = width > 1024;
   const isTablet = width <= 768;
   const isMobile = width <= 480;
+  const stepIconSize = isMobile ? 32 : 48;
+  const guideScrollY = isMobile ? 320 : isTablet ? 430 : 550;
   const scrollViewRef = useRef<ScrollView>(null);
 
   const products = [
@@ -49,10 +51,10 @@ export default function CustomerLandingScreen() {
         <Image source={HERO_IMAGE} style={styles.heroImage} />
         <LinearGradient
           colors={['rgba(15, 23, 42, 0.4)', 'rgba(15, 23, 42, 0.7)']}
-          style={[styles.heroOverlay, isTablet && styles.heroOverlayMobile]}
+          style={[styles.heroOverlay, isTablet && styles.heroOverlayMobile, isMobile && styles.heroOverlayPhone]}
         >
           <View style={styles.heroContent}>
-            <View style={styles.heroMain}>
+            <View style={[styles.heroMain, isMobile && styles.heroMainMobile]}>
               <Text style={[styles.heroTitle, isTablet && styles.heroTitleTablet, isMobile && styles.heroTitleMobile]}>
                 E-FUEL{'\n'}OUT OF FUEL? WE&apos;VE GOT{'\n'}YOU COVERED.
               </Text>
@@ -64,15 +66,15 @@ export default function CustomerLandingScreen() {
                 />
                 <TouchableOpacity 
                   style={[styles.outlineBtn, isMobile && styles.heroBtnMobile]}
-                  onPress={() => scrollViewRef.current?.scrollTo({ y: 550, animated: true })}
+                  onPress={() => scrollViewRef.current?.scrollTo({ y: guideScrollY, animated: true })}
                 >
                    <Text style={styles.outlineBtnText}>Lihat Cara Kerja</Text>
                 </TouchableOpacity>
               </View>
             </View>
             
-            <View style={styles.heroFooter}>
-               <Text style={styles.heroSubText}>REFUEL ANYWHERE. ANYTIME.</Text>
+            <View style={[styles.heroFooter, isMobile && styles.heroFooterMobile]}>
+               <Text style={[styles.heroSubText, isMobile && styles.heroSubTextMobile]}>REFUEL ANYWHERE. ANYTIME.</Text>
             </View>
           </View>
         </LinearGradient>
@@ -80,41 +82,41 @@ export default function CustomerLandingScreen() {
 
       {/* Guide Section */}
       <View style={[styles.guideSection, isTablet && styles.sectionMobile]}>
-        <Text style={styles.sectionTitle}>Beli Bensin dalam 3 Langkah Mudah</Text>
-        <Text style={styles.sectionSubtitle}>Beli bensin online dan kami kirim langsung ke lokasimu dengan proses yang cepat dan praktis.</Text>
-        <View style={[styles.stepsContainer, isDesktop && styles.stepsDesktop]}>
-          <View style={styles.stepCard}>
-             <Ionicons name="cube" size={48} color="#F97316" />
-             <Text style={styles.stepTitle}>Pilih Lokasi Pengiriman</Text>
+        <Text style={[styles.sectionTitle, isMobile && styles.sectionTitleMobile]}>Beli Bensin dalam 3 Langkah Mudah</Text>
+        <Text style={[styles.sectionSubtitle, isMobile && styles.sectionSubtitleMobile]}>Beli bensin online dan kami kirim langsung ke lokasimu dengan proses yang cepat dan praktis.</Text>
+        <View style={[styles.stepsContainer, isDesktop && styles.stepsDesktop, isMobile && styles.stepsMobile]}>
+          <View style={[styles.stepCard, isMobile && styles.stepCardMobile]}>
+             <Ionicons name="cube" size={stepIconSize} color="#F97316" />
+             <Text style={[styles.stepTitle, isMobile && styles.stepTitleMobile]}>Pilih Lokasi Pengiriman</Text>
           </View>
-          <View style={styles.stepCard}>
-             <Ionicons name="hand-right" size={48} color="#3B82F6" />
-             <Text style={styles.stepTitle}>Pilih Jenis Bensin & Jumlah Liter</Text>
+          <View style={[styles.stepCard, isMobile && styles.stepCardMobile]}>
+             <Ionicons name="hand-right" size={stepIconSize} color="#3B82F6" />
+             <Text style={[styles.stepTitle, isMobile && styles.stepTitleMobile]}>Pilih Jenis Bensin & Jumlah Liter</Text>
           </View>
-          <View style={styles.stepCard}>
-             <Ionicons name="car-sport" size={48} color="#F59E0B" />
-             <Text style={styles.stepTitle}>Bayar & Bensin Dikirim</Text>
+          <View style={[styles.stepCard, isMobile && styles.stepCardMobile]}>
+             <Ionicons name="car-sport" size={stepIconSize} color="#F59E0B" />
+             <Text style={[styles.stepTitle, isMobile && styles.stepTitleMobile]}>Bayar & Bensin Dikirim</Text>
           </View>
         </View>
       </View>
 
       {/* Products Section */}
       <View style={[styles.productsSection, isTablet && styles.sectionMobile]}>
-         <Text style={styles.sectionTitle}>Pesan Bensin Sekarang</Text>
-         <Text style={styles.sectionSubtitle}>Pilih jenis RON yang kamu butuhkan dan tentukan jumlah liter untuk pengiriman ke lokasimu.</Text>
+         <Text style={[styles.sectionTitle, isMobile && styles.sectionTitleMobile]}>Pesan Bensin Sekarang</Text>
+         <Text style={[styles.sectionSubtitle, isMobile && styles.sectionSubtitleMobile]}>Pilih jenis RON yang kamu butuhkan dan tentukan jumlah liter untuk pengiriman ke lokasimu.</Text>
          
          <View style={styles.recomHeader}>
             <Text style={styles.recomText}>Rekomendasi Untukmu</Text>
          </View>
 
-         <View style={[styles.productsGrid, isDesktop && styles.productsDesktop]}>
+         <View style={[styles.productsGrid, isDesktop && styles.productsDesktop, isMobile && styles.productsGridMobile]}>
             {products.map(p => (
-               <View key={p.name} style={styles.productCard}>
-                  <View style={[styles.productImagePlaceholder, { backgroundColor: p.color }]}>
-                     <Text style={styles.productBigRon}>{p.ron}</Text>
-                     <Text style={styles.productBrandText}>E-FUEL{'\n'}{p.name.split(' ').pop()}</Text>
+               <View key={p.name} style={[styles.productCard, isMobile && styles.productCardMobile]}>
+                  <View style={[styles.productImagePlaceholder, isMobile && styles.productImageMobile, { backgroundColor: p.color }]}>
+                     <Text style={[styles.productBigRon, isMobile && styles.productBigRonMobile]}>{p.ron}</Text>
+                     <Text style={[styles.productBrandText, isMobile && styles.productBrandTextMobile]}>E-FUEL{'\n'}{p.name.split(' ').pop()}</Text>
                   </View>
-                  <View style={styles.productInfo}>
+                  <View style={[styles.productInfo, isMobile && styles.productInfoMobile]}>
                      <Text style={styles.productName}>{p.name}</Text>
                      <Text style={styles.productPriceLabel}>Rp {p.price.toLocaleString('id-ID')} /Liter</Text>
                      <TouchableOpacity style={styles.productActionBtn} onPress={() => router.push('/order')}>
@@ -128,11 +130,11 @@ export default function CustomerLandingScreen() {
 
       {/* Testimonials */}
       <View style={[styles.testimonialSection, isTablet && styles.sectionMobile]}>
-         <Text style={styles.sectionTitle}>Kata Mereka</Text>
-         <View style={[styles.testimonialGrid, isDesktop && styles.testimonialDesktop]}>
+         <Text style={[styles.sectionTitle, isMobile && styles.sectionTitleMobile]}>Kata Mereka</Text>
+         <View style={[styles.testimonialGrid, isDesktop && styles.testimonialDesktop, isMobile && styles.testimonialGridMobile]}>
             {testimonials.map(t => (
-               <Card key={t.name} style={styles.testimonialCard}>
-                  <Text style={styles.testimonialText}>{t.text}</Text>
+               <Card key={t.name} style={[styles.testimonialCard, isMobile && styles.testimonialCardMobile]}>
+                  <Text style={[styles.testimonialText, isMobile && styles.testimonialTextMobile]}>{t.text}</Text>
                   <View style={styles.testiUser}>
                      <Image 
                        source={{ uri: `https://ui-avatars.com/api/?name=${t.name.split(' ').join('+')}&background=CFE2E8&color=334E52&bold=true` }}
@@ -195,7 +197,10 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
   },
   heroMobile: {
-    height: 390,
+    height: 310,
+    width: '92%',
+    marginTop: Spacing.md,
+    borderRadius: 18,
   },
   heroImage: {
     ...StyleSheet.absoluteFillObject,
@@ -210,6 +215,9 @@ const styles = StyleSheet.create({
   heroOverlayMobile: {
     paddingHorizontal: Spacing.lg,
   },
+  heroOverlayPhone: {
+    paddingHorizontal: Spacing.md,
+  },
   heroContent: {
     flex: 1,
     maxWidth: 1200,
@@ -220,6 +228,11 @@ const styles = StyleSheet.create({
   },
   heroMain: {
     alignItems: 'center',
+  },
+  heroMainMobile: {
+    width: '100%',
+    maxWidth: 300,
+    alignSelf: 'center',
   },
   heroTitle: {
     ...Typography.h1,
@@ -235,8 +248,9 @@ const styles = StyleSheet.create({
     lineHeight: 46,
   },
   heroTitleMobile: {
-    fontSize: 28,
-    lineHeight: 36,
+    fontSize: 22,
+    lineHeight: 28,
+    marginBottom: Spacing.lg,
   },
   heroActions: {
     flexDirection: 'row',
@@ -244,7 +258,8 @@ const styles = StyleSheet.create({
   },
   heroActionsMobile: {
     flexDirection: 'column',
-    gap: Spacing.md,
+    alignItems: 'center',
+    gap: Spacing.sm,
     width: '100%',
   },
   heroBtn: {
@@ -255,7 +270,9 @@ const styles = StyleSheet.create({
   },
   heroBtnMobile: {
     width: '100%',
+    maxWidth: 260,
     minWidth: 0,
+    height: 44,
   },
   outlineBtn: {
     minWidth: 180,
@@ -275,11 +292,18 @@ const styles = StyleSheet.create({
     bottom: 40,
     left: 0,
   },
+  heroFooterMobile: {
+    bottom: 16,
+  },
   heroSubText: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.8)',
     letterSpacing: 2,
     fontWeight: '700',
+  },
+  heroSubTextMobile: {
+    fontSize: 10,
+    letterSpacing: 1,
   },
   guideSection: {
     paddingVertical: 80,
@@ -288,7 +312,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionMobile: {
-    paddingVertical: Spacing.xxl,
+    paddingVertical: Spacing.xl,
     paddingHorizontal: Spacing.lg,
   },
   sectionTitle: {
@@ -298,6 +322,10 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     textAlign: 'center',
   },
+  sectionTitleMobile: {
+    fontSize: 22,
+    lineHeight: 28,
+  },
   sectionSubtitle: {
     ...Typography.body,
     color: Colors.textMuted,
@@ -305,10 +333,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 600,
   },
+  sectionSubtitleMobile: {
+    fontSize: 13,
+    lineHeight: 20,
+    marginBottom: Spacing.lg,
+  },
   stepsContainer: {
     width: '100%',
     maxWidth: 1000,
     gap: 40,
+  },
+  stepsMobile: {
+    gap: Spacing.lg,
   },
   stepsDesktop: {
     flexDirection: 'row',
@@ -318,11 +354,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.md,
   },
+  stepCardMobile: {
+    gap: Spacing.xs,
+  },
   stepTitle: {
     fontSize: 14,
     fontWeight: '700',
     color: '#000000',
     textAlign: 'center',
+  },
+  stepTitleMobile: {
+    fontSize: 13,
+    lineHeight: 18,
   },
   productsSection: {
      paddingVertical: 80,
@@ -346,6 +389,9 @@ const styles = StyleSheet.create({
      maxWidth: 1200,
      gap: Spacing.lg,
   },
+  productsGridMobile: {
+     gap: Spacing.md,
+  },
   productsDesktop: {
      flexDirection: 'row',
   },
@@ -356,17 +402,27 @@ const styles = StyleSheet.create({
      overflow: 'hidden',
      ...Shadows.small,
   },
+  productCardMobile: {
+     width: '100%',
+     flex: 0,
+  },
   productImagePlaceholder: {
      height: 180,
      justifyContent: 'center',
      alignItems: 'center',
      position: 'relative',
   },
+  productImageMobile: {
+     height: 125,
+  },
   productBigRon: {
     fontSize: 80,
     fontWeight: '900',
     color: 'rgba(255,255,255,0.2)',
     position: 'absolute',
+  },
+  productBigRonMobile: {
+    fontSize: 56,
   },
   productBrandText: {
     fontSize: 18,
@@ -375,8 +431,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
+  productBrandTextMobile: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
   productInfo: {
      padding: Spacing.lg,
+  },
+  productInfoMobile: {
+     padding: Spacing.md,
   },
   productName: {
      fontSize: 14,
@@ -413,6 +476,10 @@ const styles = StyleSheet.create({
      gap: Spacing.xl,
      marginTop: 40,
   },
+  testimonialGridMobile: {
+     gap: Spacing.md,
+     marginTop: Spacing.lg,
+  },
   testimonialDesktop: {
      flexDirection: 'row',
   },
@@ -425,11 +492,19 @@ const styles = StyleSheet.create({
      borderWidth: 1,
      borderColor: '#F1F5F9',
   },
+  testimonialCardMobile: {
+     padding: Spacing.lg,
+     minHeight: 0,
+  },
   testimonialText: {
      ...Typography.body,
      color: '#000000',
      lineHeight: 24,
      fontStyle: 'italic',
+  },
+  testimonialTextMobile: {
+     fontSize: 13,
+     lineHeight: 20,
   },
   testiUser: {
     flexDirection: 'row',

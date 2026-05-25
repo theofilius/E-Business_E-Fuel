@@ -78,7 +78,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: Colors.background },
           }}
         >
-          <Stack.Screen name="(onboarding)" />
+          <Stack.Screen name="(onboarding)/index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(driver)" />
@@ -90,8 +90,7 @@ export default function RootLayout() {
           <Stack.Screen name="chat/[orderId]" />
           <Stack.Screen name="profile/payment-methods" />
           <Stack.Screen name="profile/help" />
-          <Stack.Screen name="premium" />
-          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="premium/index" />
         </Stack>
       </View>
       <StatusBar style="dark" />

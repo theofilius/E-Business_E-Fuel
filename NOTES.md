@@ -131,6 +131,11 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
   - Landing/order/payment/tracking/chat/profile/premium/refund diberi padding, wrapping, map height, dan image sizing yang aman di layar kecil.
   - Admin shell berubah menjadi top horizontal menu di mobile; tabel order/refund/analytics memakai horizontal scroll.
 
+#### H. Expo Route Warning & Landing Mobile Tightening
+- `frontend/app/_layout.tsx`: memperbaiki `Stack.Screen` yang tidak cocok dengan route file-system. `"(onboarding)"` diganti menjadi `"(onboarding)/index"`, `"premium"` diganti menjadi `"premium/index"`, dan `"+not-found"` dihapus karena file route tersebut tidak ada.
+- Landing customer dan onboarding dipadatkan untuk mobile `<= 480px`: hero lebih pendek, headline lebih kecil, CTA stack vertikal dengan `maxWidth`, section spacing lebih rapat, icon langkah diperkecil, dan product/testimonial cards memakai ukuran yang aman tanpa horizontal overflow.
+- Pesanan Saya dan driver dashboard mendapat padding/card/action wrapping tambahan untuk layar kecil.
+
 ---
 
 ### 🟡 Secondary Gaps (Telah Diperbaiki untuk Demo)

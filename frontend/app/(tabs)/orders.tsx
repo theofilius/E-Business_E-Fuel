@@ -10,6 +10,7 @@ import {
   Alert,
   Modal,
   TextInput,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -48,6 +49,8 @@ const formatDate = (iso: string) =>
 
 export default function OrdersScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 480;
   const { orders, fetchOrders, isLoadingOrders, cancelOrder, error } = useOrderStore();
   const { fetchMyRefunds, getRefundByOrderId } = useRefundStore();
 
@@ -123,8 +126,8 @@ export default function OrdersScreen() {
     const hasActions = canCancel || canTrack || canRefund || canRate;
 
     return (
-      <Card key={item._id} style={styles.orderCard}>
-        <View style={styles.orderTop}>
+      <Card key={item._id} style={[styles.orderCard, isMobile && styles.orderCardMobile]}>
+        <View style={[styles.orderTop, isMobile && styles.orderTopMobile]}>
           <View style={styles.orderTitleRow}>
             <View style={styles.fuelDot}>
               <Ionicons name="water" size={18} color={Colors.primary} />
@@ -141,29 +144,30 @@ export default function OrdersScreen() {
 
         <View style={styles.divider} />
 
-        <View style={styles.detailRow}>
+        <View style={[styles.detailRow, isMobile && styles.detailRowMobile]}>
           <Text style={styles.detailLabel}>Jumlah</Text>
           <Text style={styles.detailValue}>{item.liters} Liter</Text>
         </View>
-        <View style={styles.detailRow}>
+        <View style={[styles.detailRow, isMobile && styles.detailRowMobile]}>
           <Text style={styles.detailLabel}>Alamat</Text>
-          <Text style={[styles.detailValue, styles.detailAddress]} numberOfLines={2}>
+          <Text style={[styles.detailValue, styles.detailAddress, isMobile && styles.detailAddressMobile]} numberOfLines={isMobile ? 3 : 2}>
             {item.location?.address || '-'}
           </Text>
         </View>
-        <View style={styles.detailRow}>
+        <View style={[styles.detailRow, isMobile && styles.detailRowMobile]}>
           <Text style={styles.detailLabel}>Total Bayar</Text>
           <Text style={styles.totalValue}>{formatIDR(item.totalPrice)}</Text>
         </View>
 
         {hasActions && (
-          <View style={styles.actions}>
+          <View style={[styles.actions, isMobile && styles.actionsMobile]}>
             {canCancel && (
               <Button
                 title="Batalkan"
                 variant="outline"
                 size="small"
                 onPress={() => confirmCancel(item._id)}
+                style={isMobile ? styles.mobileActionBtn : undefined}
               />
             )}
             {canTrack && (
@@ -171,6 +175,7 @@ export default function OrdersScreen() {
                 title="Lacak Pesanan"
                 size="small"
                 onPress={() => router.push(`/order/${item._id}` as any)}
+                style={isMobile ? styles.mobileActionBtn : undefined}
               />
             )}
             {/* Refund status / button */}
@@ -209,6 +214,7 @@ export default function OrdersScreen() {
                 variant="outline"
                 size="small"
                 onPress={() => router.push(`/refund/${item._id}` as any)}
+                style={isMobile ? styles.mobileActionBtn : undefined}
               />
             )}
             {/* Rating */}
@@ -224,6 +230,7 @@ export default function OrdersScreen() {
                 variant="outline"
                 size="small"
                 onPress={() => openRatingModal(item)}
+                style={isMobile ? styles.mobileActionBtn : undefined}
               />
             )}
           </View>
@@ -292,7 +299,7 @@ export default function OrdersScreen() {
         </View>
       </Modal>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, isMobile && styles.scrollContentMobile]}>
         <View style={styles.inner}>
           <View style={styles.header}>
             <View>
@@ -334,6 +341,7 @@ export default function OrdersScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  scrollContentMobile: { padding: Spacing.md, paddingBottom: Spacing.xxl },
   inner: { width: '100%', maxWidth: 900, alignSelf: 'center' },
   header: {
     flexDirection: 'row',
@@ -358,12 +366,15 @@ const styles = StyleSheet.create({
   refreshText: { ...Typography.bodySmall, color: Colors.primary, fontWeight: '700' },
   list: { gap: Spacing.md },
   orderCard: { padding: Spacing.lg },
+  orderCardMobile: { padding: Spacing.md },
   orderTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: Spacing.sm,
+    flexWrap: 'wrap',
   },
+  orderTopMobile: { flexDirection: 'column' },
   orderTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 },
   fuelDot: {
     width: 40,
@@ -382,9 +393,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     gap: Spacing.lg,
   },
+  detailRowMobile: { gap: Spacing.xs, flexWrap: 'wrap' },
   detailLabel: { ...Typography.bodySmall, color: Colors.textMuted },
   detailValue: { ...Typography.bodySmall, color: Colors.text, fontWeight: '600' },
   detailAddress: { flex: 1, textAlign: 'right' },
+  detailAddressMobile: { flexBasis: '100%', textAlign: 'left' },
   totalValue: { ...Typography.body, color: Colors.primary, fontWeight: '800' },
   actions: {
     flexDirection: 'row',
@@ -392,6 +405,12 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     justifyContent: 'flex-end',
     flexWrap: 'wrap',
+  },
+  actionsMobile: {
+    justifyContent: 'flex-start',
+  },
+  mobileActionBtn: {
+    flexGrow: 1,
   },
   center: {
     alignItems: 'center',

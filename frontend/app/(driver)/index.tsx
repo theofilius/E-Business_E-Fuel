@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -46,6 +47,8 @@ const formatTime = (iso: string) =>
 
 export default function DriverDashboard() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 480;
   const { user, signOut } = useAuthStore();
   const {
     availableOrders,
@@ -192,7 +195,7 @@ export default function DriverDashboard() {
     const customer = typeof activeOrder.userId === 'object' ? activeOrder.userId : null;
 
     return (
-      <Card style={styles.activeCard}>
+      <Card style={[styles.activeCard, isMobile && styles.cardMobile]}>
         <View style={styles.activeTop}>
           <View>
             <Text style={styles.activeTitle}>Pesanan Aktif</Text>
@@ -296,7 +299,7 @@ export default function DriverDashboard() {
   const renderAvailable = (item: Order) => {
     const customer = typeof item.userId === 'object' ? item.userId : null;
     return (
-      <Card key={item._id} style={styles.availCard}>
+      <Card key={item._id} style={[styles.availCard, isMobile && styles.cardMobile]}>
         <View style={styles.availTop}>
           <Text style={styles.availFuel}>
             {item.fuelType} · {item.liters} L
@@ -309,7 +312,7 @@ export default function DriverDashboard() {
         <Text style={styles.availMeta}>
           {customer?.name || 'Pelanggan'} · {formatTime(item.createdAt)}
         </Text>
-        <View style={styles.availActions}>
+        <View style={[styles.availActions, isMobile && styles.availActionsMobile]}>
           <Button
             title="Tolak"
             variant="outline"
@@ -331,12 +334,12 @@ export default function DriverDashboard() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.inner}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, isMobile && styles.scrollContentMobile]}>
+        <View style={[styles.inner, isMobile && styles.innerMobile]}>
           {/* Header */}
           <View style={styles.header}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.greeting}>Halo, {user?.name?.split(' ')[0] || 'Driver'} 👋</Text>
+              <Text style={[styles.greeting, isMobile && styles.greetingMobile]}>Halo, {user?.name?.split(' ')[0] || 'Driver'} 👋</Text>
               <Text style={styles.subtitle}>
                 {user?.vehicle || '-'} · {user?.plateNumber || '-'} · ⭐ {(user?.rating ?? 5).toFixed(1)} {user?.ratingCount ? `(${user.ratingCount})` : ''}
               </Text>
@@ -397,7 +400,7 @@ export default function DriverDashboard() {
               {history.map((o) => {
                 const info = STATUS_INFO[o.status];
                 return (
-                  <Card key={o._id} style={styles.historyCard}>
+                  <Card key={o._id} style={[styles.historyCard, isMobile && styles.cardMobile]}>
                     <View style={styles.historyTop}>
                       <Text style={styles.historyFuel}>
                         {o.fuelType} · {o.liters} L
@@ -425,7 +428,9 @@ export default function DriverDashboard() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  scrollContentMobile: { padding: Spacing.md, paddingBottom: Spacing.xxl },
   inner: { width: '100%', maxWidth: 900, alignSelf: 'center', gap: Spacing.xl },
+  innerMobile: { gap: Spacing.lg },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -433,6 +438,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   greeting: { ...Typography.h2, color: Colors.text },
+  greetingMobile: { fontSize: 24, lineHeight: 30 },
   subtitle: { ...Typography.bodySmall, color: Colors.textMuted, marginTop: 2 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   onlinePill: {
@@ -459,6 +465,7 @@ const styles = StyleSheet.create({
   errorText: { color: Colors.error, ...Typography.bodySmall, fontWeight: '600' },
   // Active order
   activeCard: { padding: Spacing.xl, ...Shadows.medium, borderWidth: 2, borderColor: Colors.primary },
+  cardMobile: { padding: Spacing.md },
   activeTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -552,7 +559,9 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginTop: Spacing.md,
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
   },
+  availActionsMobile: { justifyContent: 'flex-start' },
   rejectBtn: { minWidth: 80 },
   acceptBtn: { minWidth: 140 },
   // Empty
