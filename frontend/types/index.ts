@@ -91,3 +91,17 @@ export interface Order {
   createdAt: string;
   updatedAt?: string;
 }
+
+// ===== Payment =====
+export interface PaymentSession {
+  orderId: string;
+  paymentMethod: Order['paymentMethod'];
+  amount: number;
+  paymentRef: string;
+  paymentExpiry: string;
+  /** Data QR code (URL atau teks) untuk e-wallet / QRIS */
+  qrData?: string | null;
+  virtualAccount?: string | null;
+  deepLink?: string | null;
+  instructions?: string[];
+}
