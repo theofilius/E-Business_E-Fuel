@@ -28,11 +28,12 @@ export default function ChatScreen() {
   const { user } = useAuthStore();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [failedImageIds, setFailedImageIds] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
 
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
@@ -46,7 +47,6 @@ export default function ChatScreen() {
       .getMessages(orderId)
       .then((data) => {
         if (!mounted) return;
-        setConversationId(data.conversationId);
         setMessages(data.messages);
         setLoading(false);
       })
@@ -83,7 +83,7 @@ export default function ChatScreen() {
     if (!loading && messages.length > 0) {
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: false }), 150);
     }
-  }, [loading]);
+  }, [loading, messages.length]);
 
   // ─── Send text ────────────────────────────────────────────────────────────
   const handleSend = async () => {
@@ -131,11 +131,14 @@ export default function ChatScreen() {
     const type = asset.mimeType || 'image/jpeg';
 
     setUploadingImage(true);
+    setUploadError('');
     try {
       await chatService.uploadImage(orderId, uri, name, type);
       // Message arrives via socket
     } catch (e: any) {
-      Alert.alert('Gagal upload', e.message);
+      const message = e.message || 'Gagal upload gambar';
+      setUploadError(message);
+      Alert.alert('Gagal upload', message);
     } finally {
       setUploadingImage(false);
     }
@@ -149,6 +152,8 @@ export default function ChatScreen() {
       const isMe = senderId === user?._id;
       const senderName =
         typeof item.senderId === 'object' ? item.senderId.name : '';
+      const imageUri = item.imageUrl ? chatService.resolveImageUrl(item.imageUrl) : '';
+      const imageFailed = failedImageIds[item._id];
       const time = new Date(item.createdAt).toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
@@ -168,12 +173,30 @@ export default function ChatScreen() {
               <Text style={styles.senderName}>{senderName}</Text>
             ) : null}
 
-            {item.type === 'image' && item.imageUrl ? (
-              <Image
-                source={{ uri: chatService.resolveImageUrl(item.imageUrl) }}
-                style={styles.chatImage}
-                resizeMode="cover"
-              />
+            {item.type === 'image' ? (
+              imageUri && !imageFailed ? (
+                <View style={styles.chatImageWrap}>
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={styles.chatImage}
+                    resizeMode="cover"
+                    onError={() => {
+                      setFailedImageIds((prev) => ({ ...prev, [item._id]: true }));
+                    }}
+                  />
+                </View>
+              ) : (
+                <View style={styles.imageFallback}>
+                  <Ionicons
+                    name="image-outline"
+                    size={20}
+                    color={isMe ? Colors.textInverse : Colors.textMuted}
+                  />
+                  <Text style={[styles.imageFallbackText, isMe && styles.bubbleTextMe]}>
+                    Foto tidak dapat dimuat
+                  </Text>
+                </View>
+              )
             ) : (
               <Text style={[styles.bubbleText, isMe && styles.bubbleTextMe]}>
                 {item.text}
@@ -187,7 +210,7 @@ export default function ChatScreen() {
         </View>
       );
     },
-    [user?._id]
+    [failedImageIds, user?._id]
   );
 
   // ─── Header title ─────────────────────────────────────────────────────────
@@ -255,6 +278,13 @@ export default function ChatScreen() {
               flatListRef.current?.scrollToEnd({ animated: false })
             }
           />
+
+          {uploadError ? (
+            <View style={styles.inlineError}>
+              <Ionicons name="alert-circle-outline" size={16} color={Colors.error} />
+              <Text style={styles.inlineErrorText}>{uploadError}</Text>
+            </View>
+          ) : null}
 
           {/* Input bar */}
           <View style={styles.inputBar}>
@@ -435,10 +465,47 @@ const styles = StyleSheet.create({
   bubbleTimeMe: { color: 'rgba(255,255,255,0.7)' },
 
   // Image message
-  chatImage: {
+  chatImageWrap: {
     width: 200,
     height: 200,
     borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+    backgroundColor: Colors.background,
+  },
+  chatImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageFallback: {
+    width: 200,
+    minHeight: 92,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    padding: Spacing.sm,
+  },
+  imageFallbackText: {
+    ...Typography.bodySmall,
+    color: Colors.textMuted,
+    textAlign: 'center',
+  },
+  inlineError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  inlineErrorText: {
+    ...Typography.caption,
+    color: Colors.error,
+    flex: 1,
   },
 
   // Input bar

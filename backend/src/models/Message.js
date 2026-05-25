@@ -28,8 +28,13 @@ const messageSchema = new mongoose.Schema(
       default: 'text',
     },
     text: { type: String, default: null },
-    imageUrl: { type: String, default: null },
-    imageName: { type: String, default: null },
+    imageUrl: {
+      type: String,
+      default: null,
+      required: function () {
+        return this.type === 'image';
+      },
+    },
   },
   { timestamps: true }
 );

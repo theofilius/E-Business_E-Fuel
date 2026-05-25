@@ -111,9 +111,8 @@ const uploadImage = async (req, res) => {
     const { order, error, status } = await getOrderAndVerify(orderId, userId, userRole);
     if (error) return res.status(status).json({ success: false, message: error });
 
-    // Build a URL the client can load
-    const imageUrl  = `/uploads/chat/${req.file.filename}`;
-    const imageName = req.file.originalname;
+    // Build a relative URL the client resolves against the backend base URL
+    const imageUrl = `/uploads/chat/${req.file.filename}`;
 
     // Find or create conversation
     let convo = await Conversation.findOne({ orderId });
@@ -130,7 +129,6 @@ const uploadImage = async (req, res) => {
       senderRole: userRole,
       type: 'image',
       imageUrl,
-      imageName,
     });
 
     convo.lastMessage = '[Foto]';

@@ -138,7 +138,6 @@ export interface ChatMessage {
   type: 'text' | 'image';
   text?: string | null;
   imageUrl?: string | null;
-  imageName?: string | null;
   createdAt: string;
   updatedAt?: string;
 }

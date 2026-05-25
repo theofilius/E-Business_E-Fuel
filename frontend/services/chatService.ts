@@ -43,7 +43,8 @@ export const chatService = {
       // Use fetch to convert it to a Blob, then append to FormData.
       const blobResponse = await fetch(imageUri);
       const blob = await blobResponse.blob();
-      formData.append('image', blob, imageName);
+      const typedBlob = blob.type ? blob : blob.slice(0, blob.size, mimeType);
+      formData.append('image', typedBlob, imageName);
     } else {
       // On native (iOS/Android), use the {uri, name, type} form understood by RN.
       formData.append('image', {
@@ -74,6 +75,7 @@ export const chatService = {
   resolveImageUrl(imageUrl: string): string {
     if (!imageUrl) return '';
     if (imageUrl.startsWith('http')) return imageUrl;
-    return `${getBaseUrl()}${imageUrl}`;
+    const normalizedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+    return `${getBaseUrl()}${normalizedPath}`;
   },
 };

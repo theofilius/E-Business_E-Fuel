@@ -62,8 +62,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve uploaded chat images
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+// Serve uploaded chat images from backend/uploads.
+// Expo web runs on a different localhost port, so image assets must be embeddable cross-origin.
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+  },
+  express.static(path.join(__dirname, '../uploads'))
+);
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
