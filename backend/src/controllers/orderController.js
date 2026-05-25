@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const User  = require('../models/User');
 
 const fuelConfig = require('../config/fuelPrices');
 
@@ -302,6 +303,76 @@ const updateOrderStatus = async (req, res, next) => {
   }
 };
 
+// @desc    Customer rates a delivered order (1–5 stars + optional comment)
+// @route   POST /api/orders/:id/rating
+// @access  Private/Customer
+const rateOrder = async (req, res, next) => {
+  try {
+    const { rating, comment } = req.body;
+    const stars = parseInt(rating);
+
+    if (!stars || stars < 1 || stars > 5) {
+      res.status(400);
+      throw new Error('Rating harus antara 1 dan 5');
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404);
+      throw new Error('Order tidak ditemukan');
+    }
+    if (order.userId.toString() !== req.user._id.toString()) {
+      res.status(403);
+      throw new Error('Bukan pesanan Anda');
+    }
+    if (order.status !== 'delivered') {
+      res.status(400);
+      throw new Error('Hanya pesanan selesai yang dapat diberi rating');
+    }
+    if (order.rating !== null && order.rating !== undefined) {
+      res.status(400);
+      throw new Error('Anda sudah memberi rating untuk pesanan ini');
+    }
+    if (!order.driverId) {
+      res.status(400);
+      throw new Error('Pesanan tidak memiliki driver');
+    }
+
+    // Save rating on order
+    order.rating = stars;
+    order.ratingComment = comment?.trim() || null;
+    order.ratedAt = new Date();
+    await order.save();
+
+    // Recalculate driver's average rating
+    const driver = await User.findById(order.driverId);
+    if (driver) {
+      const oldCount = driver.ratingCount || 0;
+      const oldAvg   = driver.rating || 5;
+      const newCount = oldCount + 1;
+      // Weighted average: keep at most 2 decimals
+      const newAvg   = Math.round(((oldAvg * oldCount) + stars) / newCount * 10) / 10;
+      driver.rating      = Math.min(5, Math.max(0, newAvg));
+      driver.ratingCount = newCount;
+      await driver.save();
+    }
+
+    res.json({
+      success: true,
+      data: {
+        orderId: order._id,
+        rating: order.rating,
+        ratingComment: order.ratingComment,
+        ratedAt: order.ratedAt,
+        driverRating: driver?.rating,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createOrder,
   getMyOrders,
@@ -312,4 +383,5 @@ module.exports = {
   getDriverOrders,
   acceptOrder,
   updateOrderStatus,
+  rateOrder,
 };

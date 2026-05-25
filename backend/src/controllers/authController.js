@@ -75,9 +75,15 @@ const login = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
+        address: user.address || null,
         isPremium: user.isPremium || false,
         premiumPlan: user.premiumPlan || null,
         premiumUntil: user.premiumUntil || null,
+        defaultPaymentMethod: user.defaultPaymentMethod || null,
+        vehicle: user.vehicle || null,
+        plateNumber: user.plateNumber || null,
+        rating: user.rating ?? 5,
+        ratingCount: user.ratingCount ?? 0,
         token: generateToken(user._id),
       },
     });
@@ -122,6 +128,8 @@ const updateProfile = async (req, res, next) => {
     if (req.body.name  !== undefined) user.name    = req.body.name.trim()  || user.name;
     if (req.body.phone !== undefined) user.phone   = req.body.phone.trim() || user.phone;
     if (req.body.address !== undefined) user.address = req.body.address;
+    if (req.body.defaultPaymentMethod !== undefined)
+      user.defaultPaymentMethod = req.body.defaultPaymentMethod || null;
 
     if (req.body.email && req.body.email !== user.email) {
       const emailExists = await User.findOne({ email: req.body.email });
@@ -151,6 +159,11 @@ const updateProfile = async (req, res, next) => {
         premiumPlan: updatedUser.premiumPlan || null,
         premiumUntil: updatedUser.premiumUntil || null,
         avatar: updatedUser.avatar || null,
+        defaultPaymentMethod: updatedUser.defaultPaymentMethod || null,
+        vehicle: updatedUser.vehicle || null,
+        plateNumber: updatedUser.plateNumber || null,
+        rating: updatedUser.rating ?? 5,
+        ratingCount: updatedUser.ratingCount ?? 0,
       },
     });
   } catch (error) {

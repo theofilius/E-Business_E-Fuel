@@ -35,20 +35,29 @@ export const chatService = {
     mimeType: string
   ): Promise<ChatMessage> {
     const token = await storage.getItem(STORAGE_KEYS.TOKEN);
-
-    const formData = new FormData();
-    formData.append('image', {
-      uri: imageUri,
-      name: imageName,
-      type: mimeType,
-    } as any);
-
     const baseUrl = getBaseUrl();
+    const formData = new FormData();
+
+    if (Platform.OS === 'web') {
+      // On web, expo-image-picker returns a data URL (base64) or blob URL.
+      // Use fetch to convert it to a Blob, then append to FormData.
+      const blobResponse = await fetch(imageUri);
+      const blob = await blobResponse.blob();
+      formData.append('image', blob, imageName);
+    } else {
+      // On native (iOS/Android), use the {uri, name, type} form understood by RN.
+      formData.append('image', {
+        uri: imageUri,
+        name: imageName,
+        type: mimeType,
+      } as any);
+    }
+
     const res = await fetch(`${baseUrl}/api/chat/orders/${orderId}/upload`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
-        // DO NOT set Content-Type — fetch auto-sets multipart/form-data with boundary
+        // DO NOT set Content-Type manually — fetch sets multipart/form-data + boundary
       },
       body: formData,
     });

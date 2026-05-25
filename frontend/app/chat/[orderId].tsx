@@ -108,10 +108,13 @@ export default function ChatScreen() {
   const handlePickImage = async () => {
     if (!orderId) return;
 
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Izin ditolak', 'Aplikasi membutuhkan akses galeri untuk mengirim foto.');
-      return;
+    // On native, ask for library permission first
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Izin ditolak', 'Aplikasi membutuhkan akses galeri untuk mengirim foto.');
+        return;
+      }
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({

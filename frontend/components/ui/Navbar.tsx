@@ -31,7 +31,8 @@ export const Navbar = () => {
     return segments.join('/').includes(path);
   };
 
-  const notifCount = refunds.length;
+  // Only customers see refund notifications — drivers/admins have 0 badge
+  const notifCount = (!isDriver && !isAdmin) ? refunds.length : 0;
   const formatShortDate = (iso: string) =>
     new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -139,7 +140,18 @@ export const Navbar = () => {
                       </TouchableOpacity>
                     </View>
 
-                    {refunds.length === 0 ? (
+                    {/* Driver: no refund notifications */}
+                    {isDriver ? (
+                      <View style={styles.notifEmpty}>
+                        <Ionicons name="car-outline" size={28} color={Colors.textMuted} />
+                        <Text style={styles.notifEmptyText}>Notifikasi pesanan tampil di dashboard driver</Text>
+                      </View>
+                    ) : isAdmin ? (
+                      <View style={styles.notifEmpty}>
+                        <Ionicons name="shield-checkmark-outline" size={28} color={Colors.textMuted} />
+                        <Text style={styles.notifEmptyText}>Kelola notifikasi di Admin Dashboard</Text>
+                      </View>
+                    ) : refunds.length === 0 ? (
                       <View style={styles.notifEmpty}>
                         <Ionicons name="notifications-off-outline" size={28} color={Colors.textMuted} />
                         <Text style={styles.notifEmptyText}>Belum ada notifikasi</Text>
@@ -169,7 +181,7 @@ export const Navbar = () => {
                                 Refund {r.status === 'pending' ? 'Diproses' : r.status === 'approved' ? 'Disetujui' : r.status === 'rejected' ? 'Ditolak' : 'Selesai'}
                               </Text>
                               <Text style={styles.notifBody} numberOfLines={1}>
-                                Pengajuan refund untuk transaksi {shortId} sedang diproses
+                                Pengajuan refund untuk transaksi {shortId}
                               </Text>
                               <Text style={styles.notifDate}>{formatShortDate(r.createdAt)}</Text>
                             </View>
@@ -178,15 +190,17 @@ export const Navbar = () => {
                       })
                     )}
 
-                    <TouchableOpacity
-                      style={styles.notifFooter}
-                      onPress={() => {
-                        setShowNotif(false);
-                        router.push('/(tabs)/orders' as any);
-                      }}
-                    >
-                      <Text style={styles.notifFooterText}>Lihat Pesanan Saya →</Text>
-                    </TouchableOpacity>
+                    {!isDriver && !isAdmin && (
+                      <TouchableOpacity
+                        style={styles.notifFooter}
+                        onPress={() => {
+                          setShowNotif(false);
+                          router.push('/(tabs)/orders' as any);
+                        }}
+                      >
+                        <Text style={styles.notifFooterText}>Lihat Pesanan Saya →</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 )}
               </View>

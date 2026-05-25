@@ -11,7 +11,8 @@ interface RefundState {
   fetchMyRefunds: () => Promise<void>;
   submitRefund: (payload: CreateRefundPayload) => Promise<RefundRequest>;
   clearError: () => void;
-
+  /** Clear all refunds from state (call on sign-out) */
+  clearRefunds: () => void;
   /** Returns refund for a given orderId, or undefined */
   getRefundByOrderId: (orderId: string) => RefundRequest | undefined;
 }
@@ -48,6 +49,8 @@ export const useRefundStore = create<RefundState>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  clearRefunds: () => set({ refunds: [], error: null }),
 
   getRefundByOrderId: (orderId) =>
     get().refunds.find((r) => {

@@ -54,7 +54,7 @@ export default function RootLayout() {
       router.replace(home as any);
     } else if (isAdmin && !inAdminGroup) {
       router.replace('/(admin)' as any);
-    } else if (isDriver && !inDriverGroup) {
+    } else if (isDriver && !inDriverGroup && !inOrderRoute) {
       router.replace('/(driver)' as any);
     } else if (!isAdmin && !isDriver && (inAdminGroup || inDriverGroup)) {
       router.replace('/(tabs)');
@@ -86,6 +86,8 @@ export default function RootLayout() {
           <Stack.Screen name="refund/[orderId]" />
           <Stack.Screen name="refund/success" />
           <Stack.Screen name="chat/[orderId]" />
+          <Stack.Screen name="profile/payment-methods" />
+          <Stack.Screen name="profile/help" />
           <Stack.Screen name="premium" />
           <Stack.Screen name="+not-found" />
         </Stack>

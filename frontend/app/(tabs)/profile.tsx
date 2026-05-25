@@ -11,12 +11,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { user, signOut, updateProfile } = useAuthStore();
 
   const [editing, setEditing]     = useState(false);
@@ -245,7 +247,7 @@ export default function ProfileScreen() {
         <Card style={styles.menuCard} variant="outlined">
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => Alert.alert('Segera Hadir', 'Metode pembayaran akan hadir segera.')}
+            onPress={() => router.push('/profile/payment-methods' as any)}
           >
             <Ionicons name="card-outline" size={22} color={Colors.text} />
             <Text style={styles.menuText}>Metode Pembayaran</Text>
@@ -254,7 +256,7 @@ export default function ProfileScreen() {
           <View style={styles.divider} />
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => Alert.alert('Segera Hadir', 'Fitur bantuan akan hadir segera.')}
+            onPress={() => router.push('/profile/help' as any)}
           >
             <Ionicons name="help-circle-outline" size={22} color={Colors.text} />
             <Text style={styles.menuText}>Bantuan & Dukungan</Text>

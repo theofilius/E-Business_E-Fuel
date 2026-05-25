@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { storage, STORAGE_KEYS } from '../utils/storage';
 import { authService } from '../services/authService';
 import { User } from '../types';
+import { useRefundStore } from './useRefundStore';
 
 
 interface AuthState {
@@ -90,6 +91,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     await storage.removeItem(STORAGE_KEYS.TOKEN);
     await storage.removeItem(STORAGE_KEYS.USER);
+    // Clear any cached refunds so a subsequent driver/admin login doesn't see stale data
+    useRefundStore.getState().clearRefunds();
     set({ token: null, user: null, error: null });
   },
 

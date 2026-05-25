@@ -89,6 +89,22 @@ const orderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // ===== Driver rating (filled by customer after delivery) =====
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: null,
+    },
+    ratingComment: {
+      type: String,
+      default: null,
+      maxlength: 200,
+    },
+    ratedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

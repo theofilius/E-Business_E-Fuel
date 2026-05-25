@@ -83,6 +83,46 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 
 ---
 
+### 🟢 Stabilization Phase (Day 7 — Bugfix & Completion)
+
+#### A. Chat Image Upload Fix
+- `chatService.ts` `uploadImage`: platform-aware FormData — web converts data-URI to Blob via `fetch()`, native pakai `{uri,name,type}`.
+- `app/chat/[orderId].tsx`: skip `requestMediaLibraryPermissionsAsync` on web (not needed).
+- `app.json`: tambah plugin `expo-image-picker` dengan `photosPermission`.
+
+#### B. Driver Chat Access Fix
+- `app/_layout.tsx`: guard `isDriver && !inDriverGroup` sekarang menambahkan `&& !inOrderRoute` — driver tidak lagi di-redirect saat membuka `/chat/[orderId]` atau `/order/[id]`.
+
+#### C. Role-Specific Navbar Notifications
+- `notifCount` di `Navbar.tsx` sekarang `0` untuk driver dan admin (tidak pakai `refunds.length`).
+- Dropdown konten berbeda per role: driver lihat pesan "notifikasi ada di dashboard driver", admin lihat "kelola di admin dashboard", customer lihat daftar refund seperti sebelumnya.
+- `useRefundStore`: tambah action `clearRefunds()`.
+- `useAuthStore.signOut()`: memanggil `useRefundStore.getState().clearRefunds()` untuk membersihkan state refund saat logout sehingga driver yang login berikutnya tidak melihat data refund customer sebelumnya.
+
+#### D. Driver Rating System
+- `backend/src/models/Order.js`: tambah `rating` (Number 1–5), `ratingComment` (String), `ratedAt` (Date).
+- `backend/src/models/User.js`: tambah `ratingCount` (Number, default 0), `defaultPaymentMethod` (String enum).
+- `backend/src/controllers/orderController.js`: tambah `rateOrder` — validasi ownership, status delivered, mencegah duplicate, recalculate driver rating average ((oldAvg × oldCount + newRating) / newCount).
+- `backend/src/routes/orderRoutes.js`: `POST /:id/rating` dengan body validation.
+- `frontend/app/(tabs)/orders.tsx`: rating modal dengan StarRow component, input komentar, submit via `api.post`. Tombol "⭐ Beri Rating Driver" muncul untuk order `delivered` yang belum dirating. Setelah rating, tampil badge bintang.
+- `frontend/app/(driver)/index.tsx`: subtitle header menampilkan `rating.toFixed(1) (count)` dari user store.
+- `frontend/app/(admin)/drivers.tsx`: tampilkan `ratingDisplay` real dari database (bukan mock "4.8").
+- `frontend/types/index.ts`: tambah `rating`, `ratingComment`, `ratedAt` ke `Order`; `ratingCount`, `defaultPaymentMethod` ke `User`.
+
+#### E. Profile: Metode Pembayaran
+- `backend/src/models/User.js`: field `defaultPaymentMethod` (String enum, nullable).
+- `backend/src/controllers/authController.js`: `updateProfile` handle `defaultPaymentMethod`. Login response include `defaultPaymentMethod`, `ratingCount`.
+- `frontend/app/profile/payment-methods.tsx` *(baru)*: 9 metode pembayaran (QRIS, GoPay, DANA, OVO, ShopeePay, BCA/BNI/Mandiri VA, Cash). Selected state, save via `updateProfile`, success banner.
+- `frontend/app/(tabs)/profile.tsx`: menu "Metode Pembayaran" navigasi ke `/profile/payment-methods`.
+- `frontend/app/_layout.tsx`: register `profile/payment-methods`.
+
+#### F. Profile: Bantuan & Dukungan
+- `frontend/app/profile/help.tsx` *(baru)*: CS contact card (WhatsApp/Email/Phone), 6 FAQ accordion, form pesan (subject + message + charCount) dengan demo-mode submit (1 detik delay, sukses page).
+- `frontend/app/(tabs)/profile.tsx`: menu "Bantuan & Dukungan" navigasi ke `/profile/help`.
+- `frontend/app/_layout.tsx`: register `profile/help`.
+
+---
+
 ### 🟡 Secondary Gaps (Telah Diperbaiki untuk Demo)
 1.  ~~**Google OAuth Sign-In**~~: ✅ *Telah diberi disabled state dan alert "Segera Hadir".*
 2.  ~~**Lupa Password**~~: ✅ *Telah diberi alert "Segera Hadir".*

@@ -327,7 +327,7 @@ export default function DriverDashboard() {
             <View style={{ flex: 1 }}>
               <Text style={styles.greeting}>Halo, {user?.name?.split(' ')[0] || 'Driver'} 👋</Text>
               <Text style={styles.subtitle}>
-                {user?.vehicle || '-'} · {user?.plateNumber || '-'} · ⭐ {user?.rating ?? 5}
+                {user?.vehicle || '-'} · {user?.plateNumber || '-'} · ⭐ {(user?.rating ?? 5).toFixed(1)} {user?.ratingCount ? `(${user.ratingCount})` : ''}
               </Text>
             </View>
             <View style={styles.headerActions}>

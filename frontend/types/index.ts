@@ -15,7 +15,10 @@ export interface User {
   vehicle?: string | null;
   plateNumber?: string | null;
   rating?: number;
+  ratingCount?: number;
   isOnline?: boolean;
+  // Customer preference:
+  defaultPaymentMethod?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -89,6 +92,10 @@ export interface Order {
   notes?: string;
   estimatedArrival?: string | null;
   deliveredAt?: string | null;
+  // Rating fields (filled by customer after delivery)
+  rating?: number | null;
+  ratingComment?: string | null;
+  ratedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
 }

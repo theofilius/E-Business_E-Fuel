@@ -49,11 +49,14 @@ export default function AdminDrivers() {
           {drivers.length === 0 ? (
             <Text style={styles.emptyText}>Belum ada data driver.</Text>
           ) : (
-            drivers.map((driver, idx) => {
+            drivers.map((driver) => {
               const status = driver.status || 'Aktif';
               const badgeStatus = status === 'Sibuk' ? 'warning' : status === 'Offline' ? 'error' : 'success';
-              
-              const mockRating = driver.rating ? driver.rating.toFixed(1) : "4.8";
+
+              const driverRating = driver.rating != null ? driver.rating.toFixed(1) : '5.0';
+              const ratingDisplay = driver.ratingCount
+                ? `${driverRating} (${driver.ratingCount})`
+                : driverRating;
               const totalOrder = driver.stats?.totalOrders || 0;
 
               return (
@@ -73,7 +76,7 @@ export default function AdminDrivers() {
                     <View style={styles.statBox}>
                       <Text style={styles.statIcon}>⭐</Text>
                       <View>
-                         <Text style={styles.statValue}>{mockRating}</Text>
+                         <Text style={styles.statValue}>{ratingDisplay}</Text>
                       </View>
                     </View>
                     <View style={styles.statDivider} />

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -19,6 +21,7 @@ import { Button } from '../../components/ui/Button';
 import { useOrderStore } from '../../store/useOrderStore';
 import { useRefundStore } from '../../store/useRefundStore';
 import { Order, OrderStatus } from '../../types';
+import api from '../../services/api';
 
 type BadgeStatus = 'success' | 'warning' | 'error' | 'info' | 'default';
 
@@ -48,11 +51,46 @@ export default function OrdersScreen() {
   const { orders, fetchOrders, isLoadingOrders, cancelOrder, error } = useOrderStore();
   const { fetchMyRefunds, getRefundByOrderId } = useRefundStore();
 
+  // ── Rating modal state ────────────────────────────────────────────────────
+  const [ratingTarget, setRatingTarget] = useState<Order | null>(null);
+  const [ratingStars, setRatingStars]   = useState(5);
+  const [ratingText, setRatingText]     = useState('');
+  const [ratingBusy, setRatingBusy]     = useState(false);
+
   useEffect(() => {
     fetchOrders();
     fetchMyRefunds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const openRatingModal = (order: Order) => {
+    setRatingTarget(order);
+    setRatingStars(5);
+    setRatingText('');
+  };
+
+  const submitRating = async () => {
+    if (!ratingTarget || ratingBusy) return;
+    setRatingBusy(true);
+    try {
+      await api.post(`/orders/${ratingTarget._id}/rating`, {
+        rating: ratingStars,
+        comment: ratingText.trim() || undefined,
+      });
+      setRatingTarget(null);
+      // Refresh orders so the button disappears
+      fetchOrders();
+    } catch (e: any) {
+      const msg = e.message || 'Gagal mengirim rating';
+      if (Platform.OS === 'web') {
+        window.alert(msg);
+      } else {
+        Alert.alert('Error', msg);
+      }
+    } finally {
+      setRatingBusy(false);
+    }
+  };
 
   const confirmCancel = (id: string) => {
     if (Platform.OS === 'web') {
@@ -80,7 +118,9 @@ export default function OrdersScreen() {
     const existingRefund = getRefundByOrderId(item._id);
     // Allow re-submit jika sebelumnya rejected (backend hapus record lama)
     const showRefundBtn = canRefund && (!existingRefund || existingRefund.status === 'rejected');
-    const hasActions = canCancel || canTrack || canRefund;
+    // Rating: only delivered orders, only once
+    const canRate = item.status === 'delivered' && !item.rating;
+    const hasActions = canCancel || canTrack || canRefund || canRate;
 
     return (
       <Card key={item._id} style={styles.orderCard}>
@@ -171,14 +211,87 @@ export default function OrdersScreen() {
                 onPress={() => router.push(`/refund/${item._id}` as any)}
               />
             )}
+            {/* Rating */}
+            {item.status === 'delivered' && item.rating && (
+              <View style={styles.ratingDone}>
+                {'⭐'.repeat(item.rating)}
+                <Text style={styles.ratingDoneText}>  Rating Anda</Text>
+              </View>
+            )}
+            {canRate && (
+              <Button
+                title="⭐ Beri Rating Driver"
+                variant="outline"
+                size="small"
+                onPress={() => openRatingModal(item)}
+              />
+            )}
           </View>
         )}
       </Card>
     );
   };
 
+  // ── Star selector row ────────────────────────────────────────────────────
+  const StarRow = ({ value, onChange }: { value: number; onChange: (n: number) => void }) => (
+    <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', marginVertical: 12 }}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <TouchableOpacity key={n} onPress={() => onChange(n)}>
+          <Text style={{ fontSize: 36 }}>{n <= value ? '⭐' : '☆'}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      {/* ── Rating modal ── */}
+      <Modal
+        visible={!!ratingTarget}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRatingTarget(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Beri Rating Driver</Text>
+            {ratingTarget && (
+              <Text style={styles.modalSub}>
+                {typeof ratingTarget.driverId === 'object'
+                  ? (ratingTarget.driverId as any)?.name
+                  : 'Driver'}{' '}
+                · #{ratingTarget._id.slice(-6).toUpperCase()}
+              </Text>
+            )}
+            <StarRow value={ratingStars} onChange={setRatingStars} />
+            <TextInput
+              style={styles.ratingInput}
+              value={ratingText}
+              onChangeText={setRatingText}
+              placeholder="Komentar (opsional)…"
+              placeholderTextColor={Colors.textMuted}
+              multiline
+              maxLength={200}
+            />
+            <View style={styles.modalActions}>
+              <Button
+                title="Batal"
+                variant="outline"
+                onPress={() => setRatingTarget(null)}
+                style={{ flex: 1 }}
+              />
+              <Button
+                title={ratingBusy ? 'Mengirim…' : 'Kirim Rating'}
+                onPress={submitRating}
+                disabled={ratingBusy}
+                isLoading={ratingBusy}
+                style={{ flex: 1 }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.inner}>
           <View style={styles.header}>
@@ -331,5 +444,65 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontStyle: 'italic',
     paddingHorizontal: 4,
+  },
+  // ── Rating ──
+  ratingDone: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.pill,
+    backgroundColor: '#FEF9C3',
+    borderWidth: 1,
+    borderColor: '#FDE047',
+  },
+  ratingDoneText: {
+    ...Typography.caption,
+    fontWeight: '700',
+    color: Colors.warning,
+  },
+  // ── Rating modal ──
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.lg,
+  },
+  modalBox: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
+    width: '100%',
+    maxWidth: 420,
+  },
+  modalTitle: {
+    ...Typography.h3,
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  modalSub: {
+    ...Typography.bodySmall,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+  },
+  ratingInput: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    ...Typography.body,
+    color: Colors.text,
+    backgroundColor: Colors.background,
+    minHeight: 72,
+    textAlignVertical: 'top',
+    marginBottom: Spacing.md,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
   },
 });

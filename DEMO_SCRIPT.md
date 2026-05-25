@@ -118,8 +118,63 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
 - Refresh Pesanan Saya (klik "Muat Ulang") → badge berubah dari kuning **"Diproses"** menjadi hijau **"Refund Disetujui"**.
 - *(Opsional)* Tunjukkan skenario **Tolak**: Admin klik "Tolak" + isi catatan → Customer lihat badge merah "Refund Ditolak" + catatan admin. Customer bisa klik **"Ajukan Ulang"** untuk re-submit.
 
-### 6. Penutup (1 Menit)
-- **Jelaskan**: "Dengan E-Fuel, proses dari pelanggan memesan, kurir/driver mengirimkan, hingga admin memantau seluruh transaksi dapat berjalan lancar dalam satu ekosistem terpadu."
+### 6. Skenario Profile Customer (2 Menit)
+
+*Aksi: Login sebagai Customer (`demo@efuel.com` / `demo123`), buka tab Profile.*
+
+**Edit Profil:**
+- Klik tombol **"Edit"** di pojok kanan atas.
+- Ubah nama / nomor telepon / alamat.
+- Klik **"Simpan Perubahan"** → banner hijau "Profil berhasil disimpan!".
+
+**Metode Pembayaran:**
+- Klik **"Metode Pembayaran"** di menu bawah.
+- Halaman menampilkan 9 pilihan: QRIS, GoPay, DANA, OVO, ShopeePay, BCA/BNI/Mandiri VA, Cash.
+- Pilih satu → klik **"Simpan Pilihan"** → banner hijau.
+
+**Bantuan & Dukungan:**
+- Kembali ke Profile → klik **"Bantuan & Dukungan"**.
+- Tunjukkan CS card (WhatsApp / Email / Telepon).
+- Expand 2–3 accordion FAQ.
+- Isi form "Kirim Pesan" (subjek + pesan) → klik **"Kirim Pesan"** → halaman sukses "Pesan Terkirim!".
+
+### 7. Skenario Chat User ↔ Driver (2 Menit)
+
+*Aksi: Gunakan order yang sudah diterima driver (status `accepted` atau `on_the_way`).*
+
+**Customer membuka chat:**
+- Login Customer → buka **Lacak Pesanan** pada order aktif.
+- Di kartu driver, klik ikon **💬 chat** (biru, sebelah ikon telepon hijau).
+- Masuk ke halaman chat — bubble kosong (belum ada pesan).
+- Ketik pesan teks → Enter / klik **Send** → bubble muncul di kanan (biru).
+
+**Upload foto:**
+- Klik ikon **gambar** (kiri input) → pilih foto dari galeri.
+- Foto ter-upload → bubble gambar muncul di chat.
+
+**Driver melihat dan membalas:**
+- Buka tab baru → login Driver (`driver1@efuel.com` / `driver123`).
+- Di active order card, klik **"Chat dengan Pelanggan"**.
+- Lihat pesan dan foto dari customer di sisi kiri (bubble abu-abu).
+- Ketik balasan → bubble muncul di kanan driver, dan di kiri customer *realtime*.
+
+### 8. Skenario Rating Driver (1 Menit)
+
+*Aksi: Selesaikan order (driver ubah status ke Delivered), lalu kembali ke Customer.*
+
+**Customer memberi rating:**
+- Buka **Pesanan Saya** → pada order **Selesai**, klik **"⭐ Beri Rating Driver"**.
+- Modal rating: klik bintang (1–5), tambah komentar opsional → klik **"Kirim Rating"**.
+- Setelah submit, tombol rating hilang → tampil badge bintang yang sudah diberikan.
+
+**Driver melihat rating:**
+- Buka tab Driver → perhatikan subtitle header berubah (contoh: `⭐ 4.0 (1)`).
+
+**Admin melihat rating:**
+- Buka Admin Dashboard → **Kelola Driver** → kartu driver menampilkan rating real dari database.
+
+### 9. Penutup (1 Menit)
+- **Jelaskan**: "Dengan E-Fuel, proses dari pelanggan memesan, kurir/driver mengirimkan, hingga admin memantau seluruh transaksi dapat berjalan lancar dalam satu ekosistem terpadu. Fitur chat realtime, sistem rating, dan manajemen profil melengkapi pengalaman pengguna end-to-end."
 - Tutup presentasi dan persilakan penguji bertanya.
 
 ---

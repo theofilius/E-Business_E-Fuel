@@ -10,6 +10,7 @@ const {
   getDriverOrders,
   acceptOrder,
   updateOrderStatus,
+  rateOrder,
 } = require('../controllers/orderController');
 const { protect, driverOnly } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -58,5 +59,15 @@ router.post(
 router.get('/', protect, getMyOrders);
 router.get('/:id', protect, getOrderById);
 router.put('/:id/cancel', protect, cancelOrder);
+router.post(
+  '/:id/rating',
+  protect,
+  [
+    body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating harus antara 1 dan 5'),
+    body('comment').optional().isString().isLength({ max: 200 }),
+  ],
+  validate,
+  rateOrder
+);
 
 module.exports = router;

@@ -72,9 +72,19 @@ const userSchema = new mongoose.Schema(
       min: 0,
       max: 5,
     },
+    ratingCount: {
+      type: Number,
+      default: 0,
+    },
     isOnline: {
       type: Boolean,
       default: false,
+    },
+    // ===== Customer preferences =====
+    defaultPaymentMethod: {
+      type: String,
+      enum: ['cash', 'dana', 'ovo', 'gopay', 'shopeepay', 'qris', 'bca', 'bni', 'mandiri', 'bri', null],
+      default: null,
     },
   },
   {
