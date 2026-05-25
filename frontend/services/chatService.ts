@@ -2,12 +2,7 @@ import { Platform } from 'react-native';
 import { storage, STORAGE_KEYS } from '../utils/storage';
 import api from './api';
 import { ChatMessage, ChatConversation } from '../types';
-
-/** Returns the correct base URL for image assets (static uploads folder). */
-const getBaseUrl = () => {
-  if (Platform.OS === 'android') return 'http://10.0.2.2:5001';
-  return 'http://localhost:5001';
-};
+import { API_BASE_URL } from '../config/api';
 
 export const chatService = {
   /** GET /api/chat/orders/:orderId/messages */
@@ -35,7 +30,6 @@ export const chatService = {
     mimeType: string
   ): Promise<ChatMessage> {
     const token = await storage.getItem(STORAGE_KEYS.TOKEN);
-    const baseUrl = getBaseUrl();
     const formData = new FormData();
 
     if (Platform.OS === 'web') {
@@ -54,7 +48,7 @@ export const chatService = {
       } as any);
     }
 
-    const res = await fetch(`${baseUrl}/api/chat/orders/${orderId}/upload`, {
+    const res = await fetch(`${API_BASE_URL}/api/chat/orders/${orderId}/upload`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -76,6 +70,6 @@ export const chatService = {
     if (!imageUrl) return '';
     if (imageUrl.startsWith('http')) return imageUrl;
     const normalizedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-    return `${getBaseUrl()}${normalizedPath}`;
+    return `${API_BASE_URL}${normalizedPath}`;
   },
 };

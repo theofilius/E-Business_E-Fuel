@@ -1,20 +1,15 @@
 import { io, Socket } from 'socket.io-client';
-import { Platform } from 'react-native';
+import { API_BASE_URL } from '../config/api';
 
 /**
  * Singleton Socket.IO client. Connects to the backend on port 5001.
  * Same connection is reused across screens.
  */
-const getSocketUrl = () => {
-  if (Platform.OS === 'android') return 'http://10.0.2.2:5001';
-  return 'http://localhost:5001';
-};
-
 let socket: Socket | null = null;
 
 export function getSocket(): Socket {
   if (!socket) {
-    socket = io(getSocketUrl(), {
+    socket = io(API_BASE_URL, {
       transports: ['websocket', 'polling'],
       autoConnect: true,
       reconnection: true,

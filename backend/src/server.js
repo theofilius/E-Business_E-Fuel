@@ -122,14 +122,17 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
 
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
   console.log(`
   ⛽ =========================================
   ⛽  E-FUEL API Server
   ⛽  Port:        ${PORT}
+  ⛽  Host:        ${HOST}
   ⛽  Environment: ${process.env.NODE_ENV || 'development'}
   ⛽  URL:         http://localhost:${PORT}
+  ⛽  LAN URL:     http://192.168.1.153:${PORT}
   ⛽  Health:      http://localhost:${PORT}/api/health
   ⛽  Realtime:    Socket.IO enabled
   ⛽ =========================================

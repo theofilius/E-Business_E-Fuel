@@ -1,19 +1,13 @@
-import axios from 'axios';
-import { Platform } from 'react-native';
+import { create } from 'axios';
 import { storage, STORAGE_KEYS } from '../utils/storage';
+import { API_URL } from '../config/api';
 
 /**
  * Base URL of the E-FUEL backend API.
  * NOTE: backend runs on port 5001 (port 5000 is taken by macOS AirPlay Receiver).
  */
-const getApiUrl = () => {
-  // Android emulator reaches the host machine via 10.0.2.2
-  if (Platform.OS === 'android') return 'http://10.0.2.2:5001/api';
-  return 'http://localhost:5001/api';
-};
-
-const api = axios.create({
-  baseURL: getApiUrl(),
+const api = create({
+  baseURL: API_URL,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
