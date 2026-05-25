@@ -235,6 +235,15 @@ export default function DriverDashboard() {
           />
         )}
 
+        {/* Chat with customer */}
+        <TouchableOpacity
+          style={styles.chatWithCustomerBtn}
+          onPress={() => router.push(`/chat/${activeOrder._id}` as any)}
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={18} color={Colors.primary} />
+          <Text style={styles.chatWithCustomerText}>Chat dengan Pelanggan</Text>
+        </TouchableOpacity>
+
         {/* Live location sharing */}
         {(activeOrder.status === 'on_the_way' || activeOrder.status === 'arrived') && (
           <View style={styles.simBox}>
@@ -474,6 +483,23 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: '100%', backgroundColor: Colors.success },
   simStopBtn: { alignSelf: 'flex-start' },
+  chatWithCustomerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.secondary,
+  },
+  chatWithCustomerText: {
+    ...Typography.bodySmall,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
   simStopText: { ...Typography.bodySmall, color: Colors.error, fontWeight: '700' },
   // Section
   sectionTitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

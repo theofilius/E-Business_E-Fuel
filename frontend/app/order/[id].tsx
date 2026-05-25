@@ -218,14 +218,26 @@ export default function OrderTrackingScreen() {
                   </Text>
                   <Text style={styles.driverRating}>⭐ {driver.rating ?? 5}</Text>
                 </View>
-                {driver.phone && (
+                <View style={styles.driverActions}>
+                  {driver.phone && (
+                    <TouchableOpacity
+                      style={styles.callBtn}
+                      onPress={() => Linking.openURL(`tel:${driver.phone}`)}
+                    >
+                      <Ionicons name="call" size={18} color={Colors.textInverse} />
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity
-                    style={styles.callBtn}
-                    onPress={() => Linking.openURL(`tel:${driver.phone}`)}
+                    style={styles.chatBtn}
+                    onPress={() =>
+                      router.push(
+                        `/chat/${order._id}?driverName=${encodeURIComponent(driver.name)}` as any
+                      )
+                    }
                   >
-                    <Ionicons name="call" size={18} color={Colors.textInverse} />
+                    <Ionicons name="chatbubble-ellipses" size={18} color={Colors.textInverse} />
                   </TouchableOpacity>
-                )}
+                </View>
               </View>
             </Card>
           )}
@@ -398,11 +410,25 @@ const styles = StyleSheet.create({
   driverName: { ...Typography.bodyLarge, fontWeight: '800', color: Colors.text },
   driverMeta: { ...Typography.bodySmall, color: Colors.textMuted, marginTop: 2 },
   driverRating: { ...Typography.caption, color: Colors.warning, fontWeight: '700', marginTop: 4 },
+  driverActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   callBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: Colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadows.small,
+  },
+  chatBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     ...Shadows.small,

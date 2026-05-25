@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
@@ -61,6 +62,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Serve uploaded chat images
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
@@ -68,6 +72,7 @@ app.use('/api/drivers', require('./routes/driverRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/refunds', require('./routes/refundRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
 
 // Error handling
 app.use(notFound);

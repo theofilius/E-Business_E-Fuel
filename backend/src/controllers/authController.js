@@ -119,8 +119,9 @@ const updateProfile = async (req, res, next) => {
       throw new Error('User not found');
     }
 
-    user.name = req.body.name || user.name;
-    user.phone = req.body.phone || user.phone;
+    if (req.body.name  !== undefined) user.name    = req.body.name.trim()  || user.name;
+    if (req.body.phone !== undefined) user.phone   = req.body.phone.trim() || user.phone;
+    if (req.body.address !== undefined) user.address = req.body.address;
 
     if (req.body.email && req.body.email !== user.email) {
       const emailExists = await User.findOne({ email: req.body.email });
@@ -145,6 +146,11 @@ const updateProfile = async (req, res, next) => {
         email: updatedUser.email,
         phone: updatedUser.phone,
         role: updatedUser.role,
+        address: updatedUser.address || null,
+        isPremium: updatedUser.isPremium || false,
+        premiumPlan: updatedUser.premiumPlan || null,
+        premiumUntil: updatedUser.premiumUntil || null,
+        avatar: updatedUser.avatar || null,
       },
     });
   } catch (error) {

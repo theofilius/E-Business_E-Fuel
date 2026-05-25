@@ -3,6 +3,7 @@ import { storage, STORAGE_KEYS } from '../utils/storage';
 import { authService } from '../services/authService';
 import { User } from '../types';
 
+
 interface AuthState {
   user: User | null;
   token: string | null;
@@ -22,6 +23,8 @@ interface AuthState {
   clearError: () => void;
   /** Update premium fields locally + persist to storage (called after checkout) */
   updatePremium: (isPremium: boolean, premiumPlan: string, premiumUntil: string) => Promise<void>;
+  /** Call PUT /api/auth/profile, update store + storage */
+  updateProfile: (payload: { name?: string; phone?: string; address?: string }) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -99,6 +102,16 @@ export const useAuthStore = create<AuthState>((set) => ({
       const updatedUser = { ...state.user, isPremium, premiumPlan, premiumUntil };
       storage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
       return { user: updatedUser };
+    });
+  },
+
+  // PUT /api/auth/profile — update name/phone/address
+  updateProfile: async (payload) => {
+    const updated = await authService.updateProfile(payload);
+    set((state) => {
+      const mergedUser = { ...state.user, ...updated };
+      storage.setItem(STORAGE_KEYS.USER, JSON.stringify(mergedUser));
+      return { user: mergedUser };
     });
   },
 }));

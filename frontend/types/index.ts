@@ -5,6 +5,7 @@ export interface User {
   email: string;
   phone: string;
   role: 'customer' | 'admin' | 'driver';
+  address?: string | null;
   avatar?: string | null;
   // Premium fields:
   isPremium?: boolean;
@@ -118,6 +119,26 @@ export interface RefundRequest {
   processedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
+}
+
+// ===== Chat =====
+export interface ChatMessage {
+  _id: string;
+  conversationId: string;
+  orderId: string;
+  senderId: { _id: string; name: string; role: string } | string;
+  senderRole: 'customer' | 'driver' | 'admin';
+  type: 'text' | 'image';
+  text?: string | null;
+  imageUrl?: string | null;
+  imageName?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ChatConversation {
+  conversationId: string;
+  messages: ChatMessage[];
 }
 
 // ===== Payment =====

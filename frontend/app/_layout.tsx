@@ -31,7 +31,7 @@ export default function RootLayout() {
     const inTabsGroup = group === '(tabs)';
     const inDriverGroup = group === '(driver)';
     const inAdminGroup = group === '(admin)';
-    const inOrderRoute = group === 'order';
+    const inOrderRoute = group === 'order' || group === 'chat';
     // const inProtected = (inTabsGroup && segments[1] !== 'area-layanan') || inDriverGroup || inAdminGroup || inOrderRoute;
     const segmentsArr = segments as string[];
     const inProtected = (inTabsGroup && segmentsArr[1] !== 'area-layanan' 
@@ -85,6 +85,7 @@ export default function RootLayout() {
           <Stack.Screen name="order/[id]" />
           <Stack.Screen name="refund/[orderId]" />
           <Stack.Screen name="refund/success" />
+          <Stack.Screen name="chat/[orderId]" />
           <Stack.Screen name="premium" />
           <Stack.Screen name="+not-found" />
         </Stack>

@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    address: {
+      type: String,
+      default: null,
+      maxlength: [200, 'Address cannot exceed 200 characters'],
+    },
+
     // ===== Premium fields =====
     isPremium: {
       type: Boolean,
