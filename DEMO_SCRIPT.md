@@ -92,7 +92,24 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
   - **Laporan & Analitik**: Perlihatkan bar chart custom yang menampilkan dominasi bahan bakar terlaris (misal BLAZE 95).
   - **Pengaturan Cabang**: Tunjukkan form informasi area layanan dan tabel harga BBM di bawahnya. Anda dapat mengedit harga di sini jika diinginkan.
 
-### 5. Penutup (1 Menit)
+### 5. Skenario Customer: Mengajukan Refund (1.5 Menit)
+*Aksi: Tetap login sebagai Customer (`demo@efuel.com`).*
+- **Jelaskan**: "Selain memesan, pelanggan juga bisa mengajukan permintaan refund jika ada masalah dengan pesanan — misalnya bensin tidak datang, volume tidak sesuai, atau jenis BBM salah."
+- **Demo Interaksi**:
+  - Buka **Pesanan Saya** dari Navbar.
+  - Cari order dengan status **Selesai** (atau gunakan order demo yang sudah dibuat sebelumnya).
+  - Klik tombol **"Ajukan Refund"** yang muncul di bawah order card.
+  - Tampilkan halaman **Ajukan Refund**: summary order (kotak biru muda — tanggal, total, driver), dropdown alasan, textarea.
+  - Pilih alasan **"Volume Tidak Sesuai"** — tunjukkan info box kontekstual yang muncul otomatis.
+  - Isi textarea dengan deskripsi singkat.
+  - Klik **"Kirim Pengajuan Refund"** — tunjukkan **modal konfirmasi** dua tombol (Batal/Kirim).
+  - Klik **"Batal"** terlebih dahulu — tunjukkan modal menutup tanpa submit.
+  - Klik lagi **"Kirim Pengajuan Refund"** → Klik **"Kirim"** di modal.
+  - Tampilkan **halaman sukses**: icon centang hijau, deskripsi pemrosesan, status pill "Menunggu Proses".
+  - Kembali ke Pesanan Saya — tunjukkan badge **"Refund pending"** di order card.
+  - Klik **bell notifikasi** di Navbar — tunjukkan dropdown notifikasi refund.
+
+### 6. Penutup (1 Menit)
 - **Jelaskan**: "Dengan E-Fuel, proses dari pelanggan memesan, kurir/driver mengirimkan, hingga admin memantau seluruh transaksi dapat berjalan lancar dalam satu ekosistem terpadu."
 - Tutup presentasi dan persilakan penguji bertanya.
 

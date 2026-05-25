@@ -92,6 +92,30 @@ export interface Order {
   updatedAt?: string;
 }
 
+// ===== Refund =====
+export type RefundReason =
+  | 'Bensin Tidak Datang Lebih dari 15 Menit'
+  | 'Volume Tidak Sesuai'
+  | 'Jenis BBM Tidak Sesuai'
+  | 'Lainnya';
+
+export type RefundStatus = 'pending' | 'approved' | 'rejected' | 'processed';
+
+export interface RefundRequest {
+  _id: string;
+  orderId: string | Order;
+  userId: string;
+  reason: RefundReason;
+  description: string;
+  status: RefundStatus;
+  amount: number;
+  driverName?: string | null;
+  fuelType?: string | null;
+  liters?: number | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 // ===== Payment =====
 export interface PaymentSession {
   orderId: string;

@@ -7,6 +7,7 @@ const {
   updateServiceFee,
   getAllDrivers,
 } = require('../controllers/adminController');
+const { getAllRefunds } = require('../controllers/refundController');
 const { protect, adminOnly } = require('../middleware/auth');
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.get('/fuel-prices', getAdminFuelPrices);
 router.put('/fuel-prices/service-fee', updateServiceFee); // Important: put this before /:fuelType
 router.put('/fuel-prices/:fuelType', updateFuelPrice);
 router.get('/drivers', getAllDrivers);
+router.get('/refunds', getAllRefunds);
 
 module.exports = router;

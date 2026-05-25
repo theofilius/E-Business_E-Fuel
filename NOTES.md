@@ -66,6 +66,18 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 7.  ✅ **Order Summary Logic**: Basic = tidak ada diskon premium. Premium = diskon Rp300/L + ongkir gratis jika ≥10L.
 8.  ✅ **Register selalu Basic** *(fix Day 5)*: Backend register controller mengembalikan `isPremium: false` secara eksplisit. Frontend `signUp` di `useAuthStore` meng-override premium fields ke `false` secara defensif — tidak ada stale state yang bisa terbawa.
 
+### 🟢 Customer Refund Request Flow (Baru — Ditambahkan Day 6)
+1.  ✅ **Model `RefundRequest`** (`backend/src/models/RefundRequest.js`): Fields `orderId`, `userId`, `reason`, `description`, `status` (pending/approved/rejected/processed), `amount`, `driverName`, `fuelType`, `liters`. Index unique per `orderId` untuk cegah duplikat.
+2.  ✅ **Controller `refundController.js`**: `createRefund` (POST), `getMyRefunds` (GET), `getAllRefunds` (Admin GET).
+3.  ✅ **Routes**: `POST /api/refunds`, `GET /api/refunds/my`, `GET /api/admin/refunds`.
+4.  ✅ **Halaman `/refund/[orderId]`**: Form ajukan refund — summary order (biru muda), dropdown 4 alasan, info box kontekstual per alasan, textarea, modal konfirmasi dua tombol (Batal/Kirim).
+5.  ✅ **Halaman `/refund/success`**: Success page dengan icon centang hijau, deskripsi, status pill "Menunggu Proses", tombol kembali ke Pesanan Saya.
+6.  ✅ **Integrasi Pesanan Saya**: Tombol "Ajukan Refund" muncul di order card untuk order `delivered`/`cancelled` + `paymentStatus: paid`. Jika refund sudah ada, tampilkan badge status refund.
+7.  ✅ **Notification Bell Navbar**: Bell menampilkan badge merah (count refund), dropdown notifikasi menampilkan daftar refund dengan status berwarna (warning/success/error), link ke Pesanan Saya.
+8.  ✅ **Store `useRefundStore`**: `fetchMyRefunds`, `submitRefund`, `getRefundByOrderId`.
+9.  ✅ **Type `RefundRequest`**: Ditambah di `frontend/types/index.ts`.
+10. ✅ **Refund tidak mengembalikan uang** — murni demo workflow CS.
+
 ---
 
 ### 🟡 Secondary Gaps (Telah Diperbaiki untuk Demo)

@@ -83,6 +83,8 @@ export default function RootLayout() {
           <Stack.Screen name="(driver)" />
           <Stack.Screen name="(admin)" />
           <Stack.Screen name="order/[id]" />
+          <Stack.Screen name="refund/[orderId]" />
+          <Stack.Screen name="refund/success" />
           <Stack.Screen name="premium" />
           <Stack.Screen name="+not-found" />
         </Stack>

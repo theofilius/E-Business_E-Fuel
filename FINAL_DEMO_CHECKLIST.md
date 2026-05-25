@@ -65,6 +65,21 @@ Tombol-tombol berikut sudah diberi Alert pop-up ("Segera Hadir") atau state tran
 - [x] Login `premium@efuel.com` → langsung aktif Premium tanpa perlu upgrade.
 - [x] Admin & Driver flow tidak terpengaruh.
 
+## 11. Refund Flow Checklist
+- [x] Backend model `RefundRequest` dibuat dengan index unique per `orderId`.
+- [x] `POST /api/refunds` — buat pengajuan refund (auth required, order milik user, cegah duplikat).
+- [x] `GET /api/refunds/my` — ambil refund milik user login.
+- [x] `GET /api/admin/refunds` — daftar semua refund untuk admin.
+- [x] Halaman `/refund/[orderId]` — form ajukan refund sesuai Figma.
+- [x] Halaman `/refund/success` — sukses dengan icon centang hijau.
+- [x] Tombol "Ajukan Refund" di Pesanan Saya (muncul untuk order delivered/cancelled + paid).
+- [x] Badge status refund di order card jika refund sudah diajukan.
+- [x] Modal konfirmasi dua tombol (Batal/Kirim) berfungsi.
+- [x] Redirect ke success page setelah submit berhasil.
+- [x] Bell notifikasi Navbar menampilkan badge merah + dropdown refund.
+- [x] Admin & Driver flow tidak terpengaruh.
+- [x] Premium flow tidak terpengaruh.
+
 ## 9. Known Issues (Aman untuk presentasi)
 1. **Google OAuth & Lupa Password**: Flow belum selesai di backend, sudah di-handle dengan alert pop-up informatif. Hindari mengklik ini saat presentasi utama kecuali ditanya juri/penguji.
 2. **Avatar Online**: Membutuhkan internet untuk meload inisial avatar dari `ui-avatars.com`.

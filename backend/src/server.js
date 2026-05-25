@@ -67,6 +67,7 @@ app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/drivers', require('./routes/driverRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/refunds', require('./routes/refundRoutes'));
 
 // Error handling
 app.use(notFound);

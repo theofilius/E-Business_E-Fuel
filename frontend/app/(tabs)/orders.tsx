@@ -17,6 +17,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { useOrderStore } from '../../store/useOrderStore';
+import { useRefundStore } from '../../store/useRefundStore';
 import { Order, OrderStatus } from '../../types';
 
 type BadgeStatus = 'success' | 'warning' | 'error' | 'info' | 'default';
@@ -45,9 +46,11 @@ const formatDate = (iso: string) =>
 export default function OrdersScreen() {
   const router = useRouter();
   const { orders, fetchOrders, isLoadingOrders, cancelOrder, error } = useOrderStore();
+  const { fetchMyRefunds, getRefundByOrderId } = useRefundStore();
 
   useEffect(() => {
     fetchOrders();
+    fetchMyRefunds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -72,7 +75,12 @@ export default function OrdersScreen() {
     const info = STATUS_INFO[item.status] ?? { label: item.status, badge: 'default' as const };
     const canCancel = item.status === 'pending' || item.status === 'accepted';
     const canTrack = !['delivered', 'cancelled'].includes(item.status);
-    const hasActions = canCancel || canTrack;
+    // Refund: hanya untuk order delivered atau cancelled dengan paymentStatus paid
+    const canRefund =
+      (item.status === 'delivered' || item.status === 'cancelled') &&
+      item.paymentStatus === 'paid';
+    const existingRefund = getRefundByOrderId(item._id);
+    const hasActions = canCancel || canTrack || canRefund;
 
     return (
       <Card key={item._id} style={styles.orderCard}>
@@ -124,6 +132,23 @@ export default function OrdersScreen() {
                 size="small"
                 onPress={() => router.push(`/order/${item._id}` as any)}
               />
+            )}
+            {canRefund && (
+              existingRefund ? (
+                <View style={styles.refundBadge}>
+                  <Ionicons name="refresh-circle-outline" size={14} color={Colors.warning} />
+                  <Text style={styles.refundBadgeText}>
+                    Refund {existingRefund.status}
+                  </Text>
+                </View>
+              ) : (
+                <Button
+                  title="Ajukan Refund"
+                  variant="outline"
+                  size="small"
+                  onPress={() => router.push(`/refund/${item._id}` as any)}
+                />
+              )
             )}
           </View>
         )}
@@ -242,4 +267,21 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { ...Typography.h3, color: Colors.text },
   muted: { ...Typography.bodySmall, color: Colors.textMuted, textAlign: 'center' },
+  refundBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.pill,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  refundBadgeText: {
+    ...Typography.caption,
+    fontWeight: '700',
+    color: Colors.warning,
+    textTransform: 'capitalize',
+  },
 });
