@@ -92,22 +92,31 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
   - **Laporan & Analitik**: Perlihatkan bar chart custom yang menampilkan dominasi bahan bakar terlaris (misal BLAZE 95).
   - **Pengaturan Cabang**: Tunjukkan form informasi area layanan dan tabel harga BBM di bawahnya. Anda dapat mengedit harga di sini jika diinginkan.
 
-### 5. Skenario Customer: Mengajukan Refund (1.5 Menit)
-*Aksi: Tetap login sebagai Customer (`demo@efuel.com`).*
-- **Jelaskan**: "Selain memesan, pelanggan juga bisa mengajukan permintaan refund jika ada masalah dengan pesanan — misalnya bensin tidak datang, volume tidak sesuai, atau jenis BBM salah."
-- **Demo Interaksi**:
-  - Buka **Pesanan Saya** dari Navbar.
-  - Cari order dengan status **Selesai** (atau gunakan order demo yang sudah dibuat sebelumnya).
-  - Klik tombol **"Ajukan Refund"** yang muncul di bawah order card.
-  - Tampilkan halaman **Ajukan Refund**: summary order (kotak biru muda — tanggal, total, driver), dropdown alasan, textarea.
-  - Pilih alasan **"Volume Tidak Sesuai"** — tunjukkan info box kontekstual yang muncul otomatis.
-  - Isi textarea dengan deskripsi singkat.
-  - Klik **"Kirim Pengajuan Refund"** — tunjukkan **modal konfirmasi** dua tombol (Batal/Kirim).
-  - Klik **"Batal"** terlebih dahulu — tunjukkan modal menutup tanpa submit.
-  - Klik lagi **"Kirim Pengajuan Refund"** → Klik **"Kirim"** di modal.
-  - Tampilkan **halaman sukses**: icon centang hijau, deskripsi pemrosesan, status pill "Menunggu Proses".
-  - Kembali ke Pesanan Saya — tunjukkan badge **"Refund pending"** di order card.
-  - Klik **bell notifikasi** di Navbar — tunjukkan dropdown notifikasi refund.
+### 5. Skenario Customer + Admin: Refund End-to-End (3 Menit)
+
+**Bagian A — Customer Mengajukan Refund**
+*Aksi: Login sebagai Customer (`demo@efuel.com` / `demo123`).*
+- Buka **Pesanan Saya** dari Navbar.
+- Cari order dengan status **Selesai** atau **Dibatalkan** — tombol **"Ajukan Refund"** muncul di card.
+- Klik tombol → halaman **Ajukan Refund**: kotak biru muda (tanggal, total, driver), dropdown alasan, textarea.
+- Pilih **"Volume Tidak Sesuai"** — info box kontekstual muncul otomatis.
+- Isi textarea singkat → klik **"Kirim Pengajuan Refund"**.
+- Tunjukkan **modal konfirmasi** dua tombol. Klik **"Batal"** dulu — modal menutup tanpa submit.
+- Klik lagi → **"Kirim"** → redirect ke halaman sukses (icon hijau + status pill "Menunggu Proses").
+- Kembali ke Pesanan Saya → badge **"Refund Diproses"** kuning muncul di order card.
+- Tunjukkan **bell notifikasi** Navbar — dropdown tampil refund terbaru.
+
+**Bagian B — Admin Approve Refund**
+*Aksi: Buka tab baru, login sebagai Admin (`admin@efuel.com` / `admin123`).*
+- Masuk Admin Dashboard → klik **"Kelola Refund"** di sidebar (badge merah menunjukkan jumlah pending).
+- Tunjukkan 4 summary cards (Pending, Disetujui, Ditolak, Total Nominal).
+- Temukan refund yang baru diajukan → klik **"Setujui"**.
+- Tunjukkan modal konfirmasi → klik **"Setujui"** → status berubah ke **"Disetujui"** hijau langsung.
+
+**Bagian C — Customer Melihat Status Update**
+*Aksi: Kembali ke tab Customer.*
+- Refresh Pesanan Saya (klik "Muat Ulang") → badge berubah dari kuning **"Diproses"** menjadi hijau **"Refund Disetujui"**.
+- *(Opsional)* Tunjukkan skenario **Tolak**: Admin klik "Tolak" + isi catatan → Customer lihat badge merah "Refund Ditolak" + catatan admin. Customer bisa klik **"Ajukan Ulang"** untuk re-submit.
 
 ### 6. Penutup (1 Menit)
 - **Jelaskan**: "Dengan E-Fuel, proses dari pelanggan memesan, kurir/driver mengirimkan, hingga admin memantau seluruh transaksi dapat berjalan lancar dalam satu ekosistem terpadu."

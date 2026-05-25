@@ -36,10 +36,15 @@ const refundRequestSchema = new mongoose.Schema(
       default: 'pending',
     },
     // Snapshot fields from order at the time of refund
-    amount: { type: Number, default: 0 },
+    amount:     { type: Number, default: 0 },
     driverName: { type: String, default: null },
-    fuelType: { type: String, default: null },
-    liters: { type: Number, default: null },
+    fuelType:   { type: String, default: null },
+    liters:     { type: Number, default: null },
+
+    // ── Admin processing fields ──────────────────────────────────────────────
+    adminNote:   { type: String, default: null },
+    processedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    processedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

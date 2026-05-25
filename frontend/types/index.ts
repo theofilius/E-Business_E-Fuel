@@ -104,7 +104,7 @@ export type RefundStatus = 'pending' | 'approved' | 'rejected' | 'processed';
 export interface RefundRequest {
   _id: string;
   orderId: string | Order;
-  userId: string;
+  userId: string | { _id: string; name: string; email: string };
   reason: RefundReason;
   description: string;
   status: RefundStatus;
@@ -112,6 +112,10 @@ export interface RefundRequest {
   driverName?: string | null;
   fuelType?: string | null;
   liters?: number | null;
+  // Admin processing fields
+  adminNote?: string | null;
+  processedBy?: string | { _id: string; name: string } | null;
+  processedAt?: string | null;
   createdAt: string;
   updatedAt?: string;
 }

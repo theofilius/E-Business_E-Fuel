@@ -75,11 +75,11 @@ export default function OrdersScreen() {
     const info = STATUS_INFO[item.status] ?? { label: item.status, badge: 'default' as const };
     const canCancel = item.status === 'pending' || item.status === 'accepted';
     const canTrack = !['delivered', 'cancelled'].includes(item.status);
-    // Refund: hanya untuk order delivered atau cancelled dengan paymentStatus paid
-    const canRefund =
-      (item.status === 'delivered' || item.status === 'cancelled') &&
-      item.paymentStatus === 'paid';
+    // Refund: untuk order delivered atau cancelled (demo: tanpa cek paymentStatus)
+    const canRefund = item.status === 'delivered' || item.status === 'cancelled';
     const existingRefund = getRefundByOrderId(item._id);
+    // Allow re-submit jika sebelumnya rejected (backend hapus record lama)
+    const showRefundBtn = canRefund && (!existingRefund || existingRefund.status === 'rejected');
     const hasActions = canCancel || canTrack || canRefund;
 
     return (
@@ -133,22 +133,43 @@ export default function OrdersScreen() {
                 onPress={() => router.push(`/order/${item._id}` as any)}
               />
             )}
-            {canRefund && (
-              existingRefund ? (
-                <View style={styles.refundBadge}>
-                  <Ionicons name="refresh-circle-outline" size={14} color={Colors.warning} />
-                  <Text style={styles.refundBadgeText}>
-                    Refund {existingRefund.status}
+            {/* Refund status / button */}
+            {canRefund && existingRefund && existingRefund.status === 'pending' && (
+              <View style={styles.refundBadge}>
+                <Ionicons name="time-outline" size={14} color={Colors.warning} />
+                <Text style={styles.refundBadgeText}>Refund Diproses</Text>
+              </View>
+            )}
+            {canRefund && existingRefund && existingRefund.status === 'approved' && (
+              <View style={styles.refundBadgeApproved}>
+                <Ionicons name="checkmark-circle-outline" size={14} color={Colors.success} />
+                <Text style={[styles.refundBadgeText, { color: Colors.success }]}>
+                  Refund Disetujui
+                </Text>
+              </View>
+            )}
+            {canRefund && existingRefund && existingRefund.status === 'rejected' && (
+              <View style={{ gap: 6 }}>
+                <View style={styles.refundBadgeRejected}>
+                  <Ionicons name="close-circle-outline" size={14} color={Colors.error} />
+                  <Text style={[styles.refundBadgeText, { color: Colors.error }]}>
+                    Refund Ditolak
                   </Text>
                 </View>
-              ) : (
-                <Button
-                  title="Ajukan Refund"
-                  variant="outline"
-                  size="small"
-                  onPress={() => router.push(`/refund/${item._id}` as any)}
-                />
-              )
+                {existingRefund.adminNote ? (
+                  <Text style={styles.refundNote}>
+                    Catatan: {existingRefund.adminNote}
+                  </Text>
+                ) : null}
+              </View>
+            )}
+            {showRefundBtn && (
+              <Button
+                title={existingRefund?.status === 'rejected' ? 'Ajukan Ulang' : 'Ajukan Refund'}
+                variant="outline"
+                size="small"
+                onPress={() => router.push(`/refund/${item._id}` as any)}
+              />
             )}
           </View>
         )}
@@ -278,10 +299,37 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FDE68A',
   },
+  refundBadgeApproved: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.pill,
+    backgroundColor: '#D1FAE5',
+    borderWidth: 1,
+    borderColor: '#6EE7B7',
+  },
+  refundBadgeRejected: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.pill,
+    backgroundColor: '#FEE2E2',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+  },
   refundBadgeText: {
     ...Typography.caption,
     fontWeight: '700',
     color: Colors.warning,
-    textTransform: 'capitalize',
+  },
+  refundNote: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontStyle: 'italic',
+    paddingHorizontal: 4,
   },
 });

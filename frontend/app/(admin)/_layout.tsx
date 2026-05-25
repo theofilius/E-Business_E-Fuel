@@ -12,22 +12,30 @@ export default function AdminLayout() {
   const segments = useSegments();
   const { user, signOut } = useAuthStore();
   const [pendingCount, setPendingCount] = React.useState(0);
+  const [pendingRefunds, setPendingRefunds] = React.useState(0);
 
   React.useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await api.get('/admin/stats');
-        if (data.success && data.data.pendingOrders) {
-          setPendingCount(data.data.pendingOrders);
+        const [statsRes, refundsRes] = await Promise.all([
+          api.get('/admin/stats'),
+          api.get('/admin/refunds'),
+        ]);
+        if (statsRes.data.success && statsRes.data.data.pendingOrders) {
+          setPendingCount(statsRes.data.data.pendingOrders);
+        }
+        if (refundsRes.data.success) {
+          const pending = (refundsRes.data.data as any[]).filter(
+            (r: any) => r.status === 'pending'
+          ).length;
+          setPendingRefunds(pending);
         }
       } catch (err) {
         // ignore
       }
     };
     fetchStats();
-    
-    // Optional: Set up an interval to refresh the badge count every 10 seconds for real-time feel
-    const interval = setInterval(fetchStats, 10000);
+    const interval = setInterval(fetchStats, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,6 +50,7 @@ export default function AdminLayout() {
     { label: 'Dashboard', route: 'index', icon: 'grid-outline' },
     { label: 'Kelola Order', route: 'orders', icon: 'receipt-outline', badge: pendingCount > 0 ? pendingCount : null },
     { label: 'Kelola Driver', route: 'drivers', icon: 'bicycle-outline' },
+    { label: 'Kelola Refund', route: 'refunds', icon: 'refresh-circle-outline', badge: pendingRefunds > 0 ? pendingRefunds : null },
     { label: 'Laporan & Analitik', route: 'analytics', icon: 'bar-chart-outline' },
     { label: 'Pengaturan Cabang', route: 'settings', icon: 'settings-outline' },
   ];
@@ -60,7 +69,7 @@ export default function AdminLayout() {
 
         <View style={styles.navSection}>
           <Text style={styles.navSectionTitle}>Utama</Text>
-          {navItems.slice(0, 3).map((item) => {
+          {navItems.slice(0, 4).map((item) => {
             const isActive = currentRoute === item.route || (currentRoute === '(admin)' && item.route === 'index');
             return (
               <TouchableOpacity
@@ -82,7 +91,7 @@ export default function AdminLayout() {
 
         <View style={styles.navSection}>
           <Text style={styles.navSectionTitle}>Laporan</Text>
-          {navItems.slice(3).map((item) => {
+          {navItems.slice(4).map((item) => {
             const isActive = currentRoute === item.route;
             return (
               <TouchableOpacity

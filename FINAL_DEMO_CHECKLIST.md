@@ -65,18 +65,21 @@ Tombol-tombol berikut sudah diberi Alert pop-up ("Segera Hadir") atau state tran
 - [x] Login `premium@efuel.com` → langsung aktif Premium tanpa perlu upgrade.
 - [x] Admin & Driver flow tidak terpengaruh.
 
-## 11. Refund Flow Checklist
-- [x] Backend model `RefundRequest` dibuat dengan index unique per `orderId`.
-- [x] `POST /api/refunds` — buat pengajuan refund (auth required, order milik user, cegah duplikat).
-- [x] `GET /api/refunds/my` — ambil refund milik user login.
-- [x] `GET /api/admin/refunds` — daftar semua refund untuk admin.
-- [x] Halaman `/refund/[orderId]` — form ajukan refund sesuai Figma.
-- [x] Halaman `/refund/success` — sukses dengan icon centang hijau.
-- [x] Tombol "Ajukan Refund" di Pesanan Saya (muncul untuk order delivered/cancelled + paid).
-- [x] Badge status refund di order card jika refund sudah diajukan.
-- [x] Modal konfirmasi dua tombol (Batal/Kirim) berfungsi.
-- [x] Redirect ke success page setelah submit berhasil.
-- [x] Bell notifikasi Navbar menampilkan badge merah + dropdown refund.
+## 11. Refund Full Integration Checklist (User ↔ Admin)
+- [x] `POST /api/refunds` — buat refund (cegah duplikat; re-submit diizinkan setelah rejected).
+- [x] `GET /api/refunds/my` — refund milik user.
+- [x] `GET /api/admin/refunds` — semua refund + populate user/order/processedBy.
+- [x] `PATCH /api/admin/refunds/:id` — approve/reject + set adminNote, processedBy, processedAt.
+- [x] Model `RefundRequest` punya field `adminNote`, `processedBy`, `processedAt`.
+- [x] Halaman `/refund/[orderId]` — form ajukan refund.
+- [x] Halaman `/refund/success` — halaman sukses.
+- [x] Pesanan Saya: badge kuning (pending) / hijau (approved) / merah (rejected) + catatan admin.
+- [x] Pesanan Saya: tombol "Ajukan Ulang" untuk refund yang ditolak.
+- [x] Admin sidebar: "Kelola Refund" + badge pending count, auto-refresh 15 detik.
+- [x] Admin `/admin/refunds`: 4 summary cards, filter tabs, tabel, modal approve, modal reject+note.
+- [x] Status update langsung di UI admin setelah approve/reject.
+- [x] Customer lihat status terbaru setelah refresh Pesanan Saya.
+- [x] Bell notifikasi Navbar menampilkan refund terbaru.
 - [x] Admin & Driver flow tidak terpengaruh.
 - [x] Premium flow tidak terpengaruh.
 
