@@ -205,7 +205,14 @@ export default function HelpScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Spacing.lg, paddingBottom: Spacing.xxl * 2, gap: Spacing.md },
+  scroll: {
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxl * 2,
+    gap: Spacing.md,
+    width: '100%',
+    maxWidth: 760,
+    alignSelf: 'center',
+  },
 
   header: {
     flexDirection: 'row',

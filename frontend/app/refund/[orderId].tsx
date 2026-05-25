@@ -8,7 +8,6 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -352,6 +351,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
+    flexWrap: 'wrap',
   },
   summaryLabel: { ...Typography.bodySmall, color: Colors.textMuted, flex: 1 },
   summaryValue: { ...Typography.bodySmall, color: Colors.text, fontWeight: '600' },
@@ -475,6 +475,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.md,
     width: '100%',
+    flexWrap: 'wrap',
   },
   modalCancelBtn: {
     flex: 1,

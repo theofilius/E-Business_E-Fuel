@@ -50,7 +50,7 @@ export default function PaymentScreen() {
       }
     };
     init();
-  }, [id]);
+  }, [id, initiatePayment]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -210,7 +210,13 @@ const styles = StyleSheet.create({
   timerLabel: { ...Typography.bodySmall, color: Colors.textMuted },
   timerValue: { ...Typography.h1, color: Colors.warning, marginTop: 4 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginVertical: Spacing.md },
-  orderSummary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  orderSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.md,
+    flexWrap: 'wrap',
+  },
   merchantName: { ...Typography.body, fontWeight: '700', color: Colors.text },
   orderId: { ...Typography.caption, color: Colors.textMuted, marginTop: 2 },
   totalPrice: { ...Typography.h3, color: Colors.primary, fontWeight: '800' },
@@ -258,7 +264,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     backgroundColor: Colors.surface,
   },
-  vaNumber: { ...Typography.h3, color: Colors.text, letterSpacing: 2 },
+  vaNumber: { ...Typography.h3, color: Colors.text, letterSpacing: 2, flexShrink: 1 },
   copyBtn: { padding: Spacing.sm },
   confirmBtn: { marginTop: Spacing.lg, height: 56 },
 });

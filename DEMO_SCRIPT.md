@@ -78,8 +78,14 @@ Gunakan script ini sebagai panduan alur presentasi di depan penguji untuk memast
 - **Demo Interaksi**:
   - Tunjukkan bahwa ada Order baru berstatus `pending` dari customer `Customer Demo`.
   - Klik **"Terima Pesanan"**.
-  - *Aksi Opsional*: Tunjukkan UI perubahan status pesanan pada Driver Dashboard (menjadi *Accepted*, *On The Way*, dsb).
-  - *Aksi Opsional*: Kembali sebentar ke tab Customer untuk menunjukkan bahwa pesanan telah diterima (Status *Accepted* oleh driver).
+  - Pada **Pesanan Aktif**, klik **"Mulai Berangkat"**.
+  - Driver diarahkan ke halaman **Antar Pesanan** (`/driver/tracking/[orderId]`).
+  - Tunjukkan informasi tujuan: nama customer, nomor telepon, alamat lengkap, BBM, liter, total pembayaran, catatan customer, dan status order.
+  - Klik **"Buka di Maps"** untuk menunjukkan fallback navigasi Google Maps.
+  - Jika browser meminta izin lokasi, pilih Allow untuk demo live location. Jika ditolak, jelaskan fallback: alamat tujuan tetap tampil dan aplikasi tidak crash.
+  - Klik **"Chat dengan Pelanggan"** untuk memastikan driver tetap bisa membuka chat customer.
+  - Lanjutkan status dari **Tandai Tiba di Lokasi** -> **Mulai Mengisi BBM** -> **Selesai Antar**.
+  - Kembali ke tab Customer untuk menunjukkan status order ikut berubah sampai **Selesai**.
 
 ### 4. Skenario Admin: Mengelola Platform (2 Menit)
 *Aksi: Buka browser lain / incognito baru, login sebagai Admin.*

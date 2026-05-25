@@ -48,6 +48,18 @@ Tombol-tombol berikut sudah diberi Alert pop-up ("Segera Hadir") atau state tran
 ## 7. Responsiveness
 - [x] Layout desktop (split panel pada Auth page) berjalan baik di browser.
 - [x] Layout landing page aman pada viewport desktop.
+- [x] Navbar web mobile tidak overflow dan memakai collapsed menu pada viewport kecil.
+- [x] Landing page mobile: hero image scale, teks tidak clip, CTA stack.
+- [x] Order page mobile: form dan summary stack vertikal, grid BBM tidak overflow.
+- [x] Payment page mobile: card checkout/pembayaran tetap centered dan readable.
+- [x] Customer tracking mobile: map lebih pendek, card/timeline/detail tetap satu kolom.
+- [x] Chat mobile: header compact, input tetap terlihat, image bubble responsif.
+- [x] Profile/payment/support mobile: card full width, row wrap, form tidak overflow.
+- [x] Premium mobile: package cards stack, benefit table bisa horizontal scroll.
+- [x] Refund mobile: form, summary, modal action wrap.
+- [x] Driver dashboard mobile: active order card, status buttons, dan chat button fit screen.
+- [x] Driver tracking mobile: halaman Antar Pesanan satu kolom dengan map/alamat/chat/status actions.
+- [x] Admin mobile: top menu horizontal; tabel order/refund/analytics horizontal scroll.
 
 ## 8. External Visual Dependency (PENTING UNTUK DILAPORKAN)
 - ⚠️ **Avatar Testimonial (Onboarding)**: Saat ini saya menggunakan API external `https://ui-avatars.com` untuk generate avatar inisial nama secara dinamis. 
@@ -82,6 +94,19 @@ Tombol-tombol berikut sudah diberi Alert pop-up ("Segera Hadir") atau state tran
 - [x] Bell notifikasi Navbar menampilkan refund terbaru.
 - [x] Admin & Driver flow tidak terpengaruh.
 - [x] Premium flow tidak terpengaruh.
+
+## 12. Driver Tracking / Navigation Checklist
+- [x] Driver melihat pesanan aktif setelah accept order.
+- [x] Tombol **Mulai Berangkat** mengubah status ke `on_the_way`.
+- [x] Driver diarahkan ke `/driver/tracking/[orderId]`.
+- [x] Halaman **Antar Pesanan** menampilkan customer, telepon, alamat, BBM, liter, total, catatan, dan status.
+- [x] Tombol **Buka di Maps** membuka Google Maps direction ke titik tujuan.
+- [x] Tombol **Chat dengan Pelanggan** tetap menuju `/chat/[orderId]`.
+- [x] Driver location dikirim via Socket.IO `driver_location` jika geolocation diizinkan.
+- [x] Jika geolocation ditolak, UI menampilkan fallback alamat tujuan tanpa crash.
+- [x] Driver dapat lanjut status `arrived` -> `fueling` -> `delivered`.
+- [x] Setelah **Selesai Antar**, customer tracking dan Pesanan Saya melihat status selesai.
+- [x] Rating driver existing tetap berjalan untuk order `delivered`.
 
 ## 9. Known Issues (Aman untuk presentasi)
 1. **Google OAuth & Lupa Password**: Flow belum selesai di backend, sudah di-handle dengan alert pop-up informatif. Hindari mengklik ini saat presentasi utama kecuali ditanya juri/penguji.

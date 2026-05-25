@@ -30,6 +30,7 @@ export default function RootLayout() {
     const inOnboardingGroup = group === '(onboarding)';
     const inTabsGroup = group === '(tabs)';
     const inDriverGroup = group === '(driver)';
+    const inDriverPath = group === 'driver';
     const inAdminGroup = group === '(admin)';
     const inOrderRoute = group === 'order' || group === 'chat';
     // const inProtected = (inTabsGroup && segments[1] !== 'area-layanan') || inDriverGroup || inAdminGroup || inOrderRoute;
@@ -38,7 +39,7 @@ export default function RootLayout() {
       && segmentsArr[1] !== 'faq' 
       && segmentsArr[1] !== 'syarat' 
       && segmentsArr[1] !== 'tentang') 
-      || inDriverGroup || inAdminGroup || inOrderRoute;
+      || inDriverGroup || inDriverPath || inAdminGroup || inOrderRoute;
 
     if (!token) {
       if (inProtected) router.replace('/(onboarding)');
@@ -54,9 +55,9 @@ export default function RootLayout() {
       router.replace(home as any);
     } else if (isAdmin && !inAdminGroup) {
       router.replace('/(admin)' as any);
-    } else if (isDriver && !inDriverGroup && !inOrderRoute) {
+    } else if (isDriver && !inDriverGroup && !inDriverPath && !inOrderRoute) {
       router.replace('/(driver)' as any);
-    } else if (!isAdmin && !isDriver && (inAdminGroup || inDriverGroup)) {
+    } else if (!isAdmin && !isDriver && (inAdminGroup || inDriverGroup || inDriverPath)) {
       router.replace('/(tabs)');
     }
   }, [isLoading, token, user?.role, segments, router]);
@@ -83,6 +84,7 @@ export default function RootLayout() {
           <Stack.Screen name="(driver)" />
           <Stack.Screen name="(admin)" />
           <Stack.Screen name="order/[id]" />
+          <Stack.Screen name="driver/tracking/[orderId]" />
           <Stack.Screen name="refund/[orderId]" />
           <Stack.Screen name="refund/success" />
           <Stack.Screen name="chat/[orderId]" />

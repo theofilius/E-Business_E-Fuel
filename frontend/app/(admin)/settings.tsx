@@ -34,7 +34,7 @@ export default function AdminSettings() {
       await api.put(`/admin/fuel-prices/${fuelType.toLowerCase()}`, { pricePerLiter: Number(editPrice) });
       setEditingFuel(null);
       fetchFuelPrices();
-    } catch (err) {
+    } catch {
       alert('Failed to update price');
     }
   };
@@ -161,7 +161,8 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
   },
   formGroup: {
-    width: '48%',
+    flex: 1,
+    minWidth: 220,
     marginBottom: Spacing.sm,
   },
   label: {

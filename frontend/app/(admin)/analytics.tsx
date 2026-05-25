@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { Card } from '../../components/ui/Card';
 import api from '../../services/api';
@@ -123,34 +123,38 @@ export default function AdminAnalytics() {
 
       <Card style={styles.tableCard}>
         <Text style={styles.cardTitle}>Performa Driver Bulan Ini</Text>
-        <View style={styles.tableHeader}>
-          <Text style={[styles.th, { flex: 2 }]}>Driver</Text>
-          <Text style={[styles.th, { flex: 1.5 }]}>Total Order</Text>
-          <Text style={[styles.th, { flex: 1 }]}>Selesai</Text>
-          <Text style={[styles.th, { flex: 1 }]}>Batal</Text>
-          <Text style={[styles.th, { flex: 1 }]}>Rating</Text>
-          <Text style={[styles.th, { flex: 1.5 }]}>Avg Waktu</Text>
-        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.tableMinWidth}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.th, { flex: 2 }]}>Driver</Text>
+              <Text style={[styles.th, { flex: 1.5 }]}>Total Order</Text>
+              <Text style={[styles.th, { flex: 1 }]}>Selesai</Text>
+              <Text style={[styles.th, { flex: 1 }]}>Batal</Text>
+              <Text style={[styles.th, { flex: 1 }]}>Rating</Text>
+              <Text style={[styles.th, { flex: 1.5 }]}>Avg Waktu</Text>
+            </View>
 
-        {drivers.length === 0 ? (
-          <Text style={styles.emptyText}>Belum ada data driver.</Text>
-        ) : (
-          drivers.slice(0, 6).map((driver, idx) => {
-            const mockRating = driver.rating ? driver.rating.toFixed(1) : "4.8";
-            const dStats = driver.stats || { totalOrders: 0, completedOrders: 0, cancelledOrders: 0 };
+            {drivers.length === 0 ? (
+              <Text style={styles.emptyText}>Belum ada data driver.</Text>
+            ) : (
+              drivers.slice(0, 6).map((driver, idx) => {
+                const mockRating = driver.rating ? driver.rating.toFixed(1) : "4.8";
+                const dStats = driver.stats || { totalOrders: 0, completedOrders: 0, cancelledOrders: 0 };
 
-            return (
-              <View key={driver._id} style={styles.tableRow}>
-                <Text style={[styles.td, { flex: 2, fontWeight: '600' }]}>{driver.name}</Text>
-                <Text style={[styles.td, { flex: 1.5 }]}>{dStats.totalOrders}</Text>
-                <Text style={[styles.td, { flex: 1 }]}>{dStats.completedOrders}</Text>
-                <Text style={[styles.td, { flex: 1 }]}>{dStats.cancelledOrders}</Text>
-                <Text style={[styles.td, { flex: 1, color: Colors.warning }]}>⭐ {mockRating}</Text>
-                <Text style={[styles.td, { flex: 1.5 }]}>12 Menit</Text>
+                return (
+                  <View key={driver._id} style={styles.tableRow}>
+                    <Text style={[styles.td, { flex: 2, fontWeight: '600' }]}>{driver.name}</Text>
+                    <Text style={[styles.td, { flex: 1.5 }]}>{dStats.totalOrders}</Text>
+                    <Text style={[styles.td, { flex: 1 }]}>{dStats.completedOrders}</Text>
+                    <Text style={[styles.td, { flex: 1 }]}>{dStats.cancelledOrders}</Text>
+                    <Text style={[styles.td, { flex: 1, color: Colors.warning }]}>⭐ {mockRating}</Text>
+                    <Text style={[styles.td, { flex: 1.5 }]}>12 Menit</Text>
+                  </View>
+                );
+              })
+            )}
               </View>
-            );
-          })
-        )}
+        </ScrollView>
       </Card>
     </View>
   );
@@ -174,13 +178,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.xl,
     marginBottom: Spacing.xl,
+    flexWrap: 'wrap',
   },
   summaryCard: {
     flex: 1,
+    minWidth: 280,
     padding: Spacing.xl,
   },
   chartCard: {
     flex: 1,
+    minWidth: 280,
     padding: Spacing.xl,
   },
   sectionLabel: {
@@ -243,6 +250,9 @@ const styles = StyleSheet.create({
   tableCard: {
     padding: 0,
     overflow: 'hidden',
+  },
+  tableMinWidth: {
+    minWidth: 860,
   },
   cardTitle: {
     ...Typography.h3,

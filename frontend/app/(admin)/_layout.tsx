@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
 import api from '../../services/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,8 @@ export default function AdminLayout() {
   const router = useRouter();
   const segments = useSegments();
   const { user, signOut } = useAuthStore();
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 768;
   const [pendingCount, setPendingCount] = React.useState(0);
   const [pendingRefunds, setPendingRefunds] = React.useState(0);
 
@@ -30,7 +32,7 @@ export default function AdminLayout() {
           ).length;
           setPendingRefunds(pending);
         }
-      } catch (err) {
+      } catch {
         // ignore
       }
     };
@@ -56,10 +58,10 @@ export default function AdminLayout() {
   ];
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'top']}>
+    <SafeAreaView style={[styles.container, isMobile && styles.containerMobile]} edges={['bottom', 'top']}>
       {/* Sidebar */}
-      <View style={styles.sidebar}>
-        <View style={styles.logoContainer}>
+      <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
+        <View style={[styles.logoContainer, isMobile && styles.logoContainerMobile]}>
           <Text style={styles.logoText}>
             <Text style={{ color: Colors.info }}>E</Text>
             <Text style={{ color: Colors.primary }}>FUEL</Text>
@@ -67,59 +69,84 @@ export default function AdminLayout() {
           </Text>
         </View>
 
-        <View style={styles.navSection}>
-          <Text style={styles.navSectionTitle}>Utama</Text>
-          {navItems.slice(0, 4).map((item) => {
-            const isActive = currentRoute === item.route || (currentRoute === '(admin)' && item.route === 'index');
-            return (
-              <TouchableOpacity
-                key={item.route}
-                style={[styles.navItem, isActive && styles.navItemActive]}
-                onPress={() => router.push(`/(admin)/${item.route === 'index' ? '' : item.route}`)}
-              >
-                <Ionicons name={item.icon as any} size={20} color={isActive ? 'white' : Colors.textMuted} />
-                <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>{item.label}</Text>
-                {item.badge && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{item.badge}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {isMobile ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mobileNavScroll}>
+            {navItems.map((item) => {
+              const isActive = currentRoute === item.route || (currentRoute === '(admin)' && item.route === 'index');
+              return (
+                <TouchableOpacity
+                  key={item.route}
+                  style={[styles.mobileNavItem, isActive && styles.navItemActive]}
+                  onPress={() => router.push(`/(admin)/${item.route === 'index' ? '' : item.route}`)}
+                >
+                  <Ionicons name={item.icon as any} size={18} color={isActive ? 'white' : Colors.textMuted} />
+                  <Text style={[styles.mobileNavLabel, isActive && styles.navLabelActive]}>{item.label}</Text>
+                  {item.badge && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{item.badge}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        ) : (
+          <>
+            <View style={styles.navSection}>
+              <Text style={styles.navSectionTitle}>Utama</Text>
+              {navItems.slice(0, 4).map((item) => {
+                const isActive = currentRoute === item.route || (currentRoute === '(admin)' && item.route === 'index');
+                return (
+                  <TouchableOpacity
+                    key={item.route}
+                    style={[styles.navItem, isActive && styles.navItemActive]}
+                    onPress={() => router.push(`/(admin)/${item.route === 'index' ? '' : item.route}`)}
+                  >
+                    <Ionicons name={item.icon as any} size={20} color={isActive ? 'white' : Colors.textMuted} />
+                    <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>{item.label}</Text>
+                    {item.badge && (
+                      <View style={styles.badge}>
+                        <Text style={styles.badgeText}>{item.badge}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-        <View style={styles.navSection}>
-          <Text style={styles.navSectionTitle}>Laporan</Text>
-          {navItems.slice(4).map((item) => {
-            const isActive = currentRoute === item.route;
-            return (
-              <TouchableOpacity
-                key={item.route}
-                style={[styles.navItem, isActive && styles.navItemActive]}
-                onPress={() => router.push(`/(admin)/${item.route}`)}
-              >
-                <Ionicons name={item.icon as any} size={20} color={isActive ? 'white' : Colors.textMuted} />
-                <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>{item.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+            <View style={styles.navSection}>
+              <Text style={styles.navSectionTitle}>Laporan</Text>
+              {navItems.slice(4).map((item) => {
+                const isActive = currentRoute === item.route;
+                return (
+                  <TouchableOpacity
+                    key={item.route}
+                    style={[styles.navItem, isActive && styles.navItemActive]}
+                    onPress={() => router.push(`/(admin)/${item.route}`)}
+                  >
+                    <Ionicons name={item.icon as any} size={20} color={isActive ? 'white' : Colors.textMuted} />
+                    <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>{item.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        )}
       </View>
 
       {/* Main Content Area */}
       <View style={styles.main}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, isMobile && styles.headerMobile]}>
           <View style={styles.headerLeft}>
              {/* Title can be dynamic if we want, but for now empty or simple text */}
           </View>
-          <View style={styles.headerRight}>
+          <View style={[styles.headerRight, isMobile && styles.headerRightMobile]}>
             <TouchableOpacity style={styles.iconBtn}>
               <Ionicons name="notifications-outline" size={24} color={Colors.text} />
               <View style={styles.notifDot} />
             </TouchableOpacity>
-            <View style={styles.profileBox}>
+            <View style={[styles.profileBox, isMobile && styles.profileBoxMobile]}>
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'A'}</Text>
               </View>
@@ -149,6 +176,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: Colors.background,
   },
+  containerMobile: {
+    flexDirection: 'column',
+  },
   sidebar: {
     width: 260,
     backgroundColor: '#FFFFFF',
@@ -157,9 +187,39 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
     paddingHorizontal: Spacing.md,
   },
+  sidebarMobile: {
+    width: '100%',
+    paddingVertical: Spacing.md,
+    borderRightWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
   logoContainer: {
     marginBottom: Spacing.xxl,
     paddingHorizontal: Spacing.sm,
+  },
+  logoContainerMobile: {
+    marginBottom: Spacing.md,
+  },
+  mobileNavScroll: {
+    paddingHorizontal: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  mobileNavItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  mobileNavLabel: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    fontWeight: '700',
   },
   logoText: {
     ...Typography.h2,
@@ -232,11 +292,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
   },
+  headerMobile: {
+    height: 'auto',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
   headerLeft: {},
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.lg,
+  },
+  headerRightMobile: {
+    gap: Spacing.sm,
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
   },
   iconBtn: {
     position: 'relative',
@@ -258,6 +328,9 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderLeftColor: Colors.border,
     paddingLeft: Spacing.lg,
+  },
+  profileBoxMobile: {
+    paddingLeft: Spacing.sm,
   },
   avatar: {
     width: 36,

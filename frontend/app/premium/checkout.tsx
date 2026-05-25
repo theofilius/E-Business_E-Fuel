@@ -188,6 +188,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
     paddingBottom: Spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: Colors.borderLight,
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.text,
   },
-  priceCol: { alignItems: 'flex-end' },
+  priceCol: { alignItems: 'flex-end', flexShrink: 1 },
   priceText: {
     ...Typography.h3,
     fontWeight: '800',

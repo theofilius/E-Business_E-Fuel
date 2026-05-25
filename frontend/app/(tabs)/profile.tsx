@@ -279,7 +279,13 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl * 2 },
+  scrollContent: {
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxl * 2,
+    width: '100%',
+    maxWidth: 760,
+    alignSelf: 'center',
+  },
 
   topHeader: {
     flexDirection: 'row',
@@ -369,7 +375,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: { ...Typography.caption, color: Colors.textMuted, fontWeight: '700', marginBottom: 4 },
   fieldValue: { ...Typography.body, color: Colors.text },
-  readonlyRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  readonlyRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   readonlyBadge: {
     backgroundColor: Colors.borderLight,
     paddingHorizontal: 8,
@@ -393,7 +399,7 @@ const styles = StyleSheet.create({
   premiumCard: { padding: Spacing.lg, marginBottom: Spacing.md },
   premiumCardActive: { backgroundColor: '#F5F3FF', borderWidth: 1, borderColor: '#C4B5FD' },
   premiumCardBasic: { backgroundColor: Colors.secondary, borderWidth: 1, borderColor: Colors.border },
-  premiumRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  premiumRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.md, flexWrap: 'wrap' },
   premiumCardTitle: { ...Typography.bodyLarge, fontWeight: '800', color: Colors.text, marginBottom: 2 },
   premiumCardSub: { ...Typography.bodySmall, color: Colors.textMuted },
   upgradePill: {
@@ -408,6 +414,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.md,
     marginBottom: Spacing.md,
+    flexWrap: 'wrap',
   },
 
   menuCard: { padding: 0, overflow: 'hidden', marginBottom: Spacing.xl },

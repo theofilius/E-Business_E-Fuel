@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, useWindowDimensions } from 'react-native';
 import { useRouter, useSegments } from 'expo-router';
 import { Colors, Typography, Spacing, Shadows, BorderRadius } from '../../constants/theme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -9,11 +9,14 @@ import { Ionicons } from '@expo/vector-icons';
 export const Navbar = () => {
   const router = useRouter();
   const segments = useSegments();
-  const { user } = useAuthStore();
+  const { user, signOut } = useAuthStore();
   const { refunds, fetchMyRefunds } = useRefundStore();
+  const { width } = useWindowDimensions();
   const isDriver = user?.role === 'driver';
   const isAdmin = user?.role === 'admin';
+  const isMobile = width <= 768;
   const [showNotif, setShowNotif] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   // Fetch refunds once when user is logged in (customer only)
   useEffect(() => {
@@ -35,6 +38,172 @@ export const Navbar = () => {
   const notifCount = (!isDriver && !isAdmin) ? refunds.length : 0;
   const formatShortDate = (iso: string) =>
     new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  const navigate = (route: string) => {
+    setShowMenu(false);
+    setShowNotif(false);
+    router.push(route as any);
+  };
+
+  const mobileLinks = isAdmin
+    ? [{ label: 'Admin Dashboard', route: '/(admin)' }]
+    : isDriver
+    ? [{ label: 'Dashboard Driver', route: '/(driver)' }]
+    : [
+        { label: 'Pesan Bensin', route: user ? '/order' : '/(auth)/register' },
+        ...(user ? [{ label: 'Pesanan Saya', route: '/(tabs)/orders' }] : []),
+        { label: 'Premium', route: '/premium' },
+        { label: 'Area Layanan', route: '/area-layanan' },
+        { label: 'Tentang E-FUEL', route: '/tentang' },
+        { label: 'FAQs', route: '/faq' },
+      ];
+
+  if (isMobile) {
+    return (
+      <View style={[styles.navbar, styles.mobileNavbar]}>
+        <View style={[styles.container, styles.mobileContainer]}>
+          <TouchableOpacity onPress={() => navigate(isDriver ? '/(driver)' : isAdmin ? '/(admin)' : '/')} style={styles.logoContainer}>
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoText}>E</Text>
+            </View>
+            <Text style={styles.brandName}>E-FUEL</Text>
+          </TouchableOpacity>
+
+          <View style={styles.mobileActions}>
+            {user && (
+              <View style={styles.bellWrapper}>
+                <TouchableOpacity
+                  style={styles.iconBtn}
+                  onPress={() => {
+                    setShowNotif((v) => !v);
+                    setShowMenu(false);
+                  }}
+                >
+                  <Ionicons
+                    name={showNotif ? 'notifications' : 'notifications-outline'}
+                    size={22}
+                    color={notifCount > 0 ? Colors.primary : Colors.text}
+                  />
+                  {notifCount > 0 && (
+                    <View style={styles.notifBadge}>
+                      <Text style={styles.notifBadgeText}>{notifCount > 9 ? '9+' : notifCount}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+
+                {showNotif && (
+                  <View style={[styles.notifDropdown, styles.notifDropdownMobile]}>
+                    <View style={styles.notifHeader}>
+                      <Text style={styles.notifHeaderText}>Notifikasi</Text>
+                      <TouchableOpacity onPress={() => setShowNotif(false)}>
+                        <Ionicons name="close" size={18} color={Colors.textMuted} />
+                      </TouchableOpacity>
+                    </View>
+                    {isDriver ? (
+                      <View style={styles.notifEmpty}>
+                        <Ionicons name="car-outline" size={28} color={Colors.textMuted} />
+                        <Text style={styles.notifEmptyText}>Notifikasi pesanan tampil di dashboard driver</Text>
+                      </View>
+                    ) : isAdmin ? (
+                      <View style={styles.notifEmpty}>
+                        <Ionicons name="shield-checkmark-outline" size={28} color={Colors.textMuted} />
+                        <Text style={styles.notifEmptyText}>Kelola notifikasi di Admin Dashboard</Text>
+                      </View>
+                    ) : refunds.length === 0 ? (
+                      <View style={styles.notifEmpty}>
+                        <Ionicons name="notifications-off-outline" size={28} color={Colors.textMuted} />
+                        <Text style={styles.notifEmptyText}>Belum ada notifikasi</Text>
+                      </View>
+                    ) : (
+                      refunds.slice(0, 5).map((r) => {
+                        const orderId = typeof r.orderId === 'string' ? r.orderId : r.orderId._id;
+                        const shortId = `#${orderId.slice(-6).toUpperCase()}`;
+                        const statusColor =
+                          r.status === 'approved' || r.status === 'processed'
+                            ? Colors.success
+                            : r.status === 'rejected'
+                            ? Colors.error
+                            : Colors.warning;
+                        return (
+                          <TouchableOpacity
+                            key={r._id}
+                            style={styles.notifItem}
+                            onPress={() => navigate('/(tabs)/orders')}
+                          >
+                            <View style={[styles.notifDot, { backgroundColor: statusColor }]} />
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.notifTitle}>
+                                Refund {r.status === 'pending' ? 'Diproses' : r.status === 'approved' ? 'Disetujui' : r.status === 'rejected' ? 'Ditolak' : 'Selesai'}
+                              </Text>
+                              <Text style={styles.notifBody} numberOfLines={1}>
+                                Pengajuan refund untuk transaksi {shortId}
+                              </Text>
+                              <Text style={styles.notifDate}>{formatShortDate(r.createdAt)}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })
+                    )}
+                  </View>
+                )}
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.mobileMenuBtn}
+              onPress={() => {
+                setShowMenu((v) => !v);
+                setShowNotif(false);
+              }}
+            >
+              <Ionicons name={showMenu ? 'close' : 'menu'} size={24} color={Colors.text} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {showMenu && (
+          <View style={styles.mobileMenu}>
+            {mobileLinks.map((item) => (
+              <TouchableOpacity key={item.label} style={styles.mobileMenuItem} onPress={() => navigate(item.route)}>
+                <Text style={styles.mobileMenuText}>{item.label}</Text>
+                <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+              </TouchableOpacity>
+            ))}
+            {user ? (
+              <>
+                <TouchableOpacity
+                  style={styles.mobileMenuItem}
+                  onPress={() => navigate(isAdmin ? '/(admin)' : isDriver ? '/(driver)' : '/(tabs)/profile')}
+                >
+                  <Text style={styles.mobileMenuText}>{user.name}</Text>
+                  <Ionicons name="person-circle-outline" size={18} color={Colors.textMuted} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.mobileMenuItem, styles.mobileSignOutItem]}
+                  onPress={async () => {
+                    setShowMenu(false);
+                    await signOut();
+                  }}
+                >
+                  <Text style={[styles.mobileMenuText, { color: Colors.error }]}>Log Out</Text>
+                  <Ionicons name="log-out-outline" size={18} color={Colors.error} />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <View style={styles.mobileAuthRow}>
+                <TouchableOpacity style={styles.mobileAuthOutline} onPress={() => navigate('/(auth)/login')}>
+                  <Text style={styles.loginText}>Log In</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.mobileAuthPrimary} onPress={() => navigate('/(auth)/register')}>
+                  <Text style={styles.registerText}>Register</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.navbar}>
@@ -246,6 +415,10 @@ const styles = StyleSheet.create({
     zIndex: 100,
     ...Shadows.small,
   },
+  mobileNavbar: {
+    height: 64,
+    position: 'relative',
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -254,6 +427,10 @@ const styles = StyleSheet.create({
     maxWidth: 1440,
     width: '100%',
     alignSelf: 'center',
+  },
+  mobileContainer: {
+    paddingHorizontal: Spacing.md,
+    height: 64,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -297,6 +474,21 @@ const styles = StyleSheet.create({
   userActions: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  mobileActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  mobileMenuBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
   },
   loggedInRow: {
     flexDirection: 'row',
@@ -401,6 +593,12 @@ const styles = StyleSheet.create({
     ...Shadows.large,
     overflow: 'hidden',
   },
+  notifDropdownMobile: {
+    position: 'absolute',
+    top: 38,
+    right: 0,
+    width: 300,
+  },
   notifHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -468,5 +666,55 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     fontWeight: '700',
     color: Colors.primary,
+  },
+  mobileMenu: {
+    position: 'absolute',
+    top: 64,
+    left: Spacing.md,
+    right: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    zIndex: 998,
+    ...Shadows.large,
+    overflow: 'hidden',
+  },
+  mobileMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  mobileMenuText: {
+    ...Typography.bodySmall,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  mobileSignOutItem: {
+    borderBottomWidth: 0,
+  },
+  mobileAuthRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+  },
+  mobileAuthOutline: {
+    flex: 1,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
+  },
+  mobileAuthPrimary: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: 10,
   },
 });

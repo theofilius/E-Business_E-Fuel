@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -26,6 +27,9 @@ export default function ChatScreen() {
   const { orderId, driverName } = useLocalSearchParams<{ orderId: string; driverName?: string }>();
   const router = useRouter();
   const { user } = useAuthStore();
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 480;
+  const imageSize = Math.min(Math.max(width * (isMobile ? 0.58 : 0.28), 160), 220);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
@@ -175,7 +179,7 @@ export default function ChatScreen() {
 
             {item.type === 'image' ? (
               imageUri && !imageFailed ? (
-                <View style={styles.chatImageWrap}>
+                <View style={[styles.chatImageWrap, { width: imageSize, height: imageSize }]}>
                   <Image
                     source={{ uri: imageUri }}
                     style={styles.chatImage}
@@ -186,7 +190,7 @@ export default function ChatScreen() {
                   />
                 </View>
               ) : (
-                <View style={styles.imageFallback}>
+                <View style={[styles.imageFallback, { width: imageSize }]}>
                   <Ionicons
                     name="image-outline"
                     size={20}
@@ -210,7 +214,7 @@ export default function ChatScreen() {
         </View>
       );
     },
-    [failedImageIds, user?._id]
+    [failedImageIds, imageSize, user?._id]
   );
 
   // ─── Header title ─────────────────────────────────────────────────────────
@@ -224,7 +228,7 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, isMobile && styles.headerMobile]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={22} color={Colors.text} />
         </TouchableOpacity>
@@ -232,7 +236,7 @@ export default function ChatScreen() {
           <View style={styles.headerAvatar}>
             <Ionicons name="person" size={18} color={Colors.textInverse} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle} numberOfLines={1}>
               {headerTitle}
             </Text>
@@ -343,6 +347,10 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
     backgroundColor: Colors.surface,
     ...Shadows.small,
+  },
+  headerMobile: {
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
   },
   backBtn: {
     width: 40,
@@ -466,8 +474,6 @@ const styles = StyleSheet.create({
 
   // Image message
   chatImageWrap: {
-    width: 200,
-    height: 200,
     borderRadius: BorderRadius.md,
     overflow: 'hidden',
     backgroundColor: Colors.background,
@@ -477,7 +483,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   imageFallback: {
-    width: 200,
     minHeight: 92,
     borderRadius: BorderRadius.md,
     borderWidth: 1,

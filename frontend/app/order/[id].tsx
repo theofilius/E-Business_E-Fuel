@@ -10,6 +10,7 @@ import {
   Alert,
   Linking,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -61,6 +62,8 @@ const formatIDR = (n: number) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
 export default function OrderTrackingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isMobile = width <= 480;
   const [order, setOrder] = useState<Order | null>(null);
   const [driverLoc, setDriverLoc] = useState<LatLng | null>(null);
   const [loading, setLoading] = useState(true);
@@ -165,7 +168,7 @@ export default function OrderTrackingScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, isMobile && styles.scrollContentMobile]}>
         <View style={styles.inner}>
           {/* Header */}
           <View style={styles.header}>
@@ -199,7 +202,7 @@ export default function OrderTrackingScreen() {
           <TrackingMap
             destination={order.location.coordinates}
             driver={driverLoc}
-            height={320}
+            height={isMobile ? 220 : 320}
           />
 
           {/* Driver info (when assigned) */}
@@ -370,6 +373,7 @@ export default function OrderTrackingScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scrollContent: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
+  scrollContentMobile: { padding: Spacing.md, paddingBottom: Spacing.xxl },
   inner: { width: '100%', maxWidth: 900, alignSelf: 'center', gap: Spacing.lg },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.md, padding: Spacing.lg },
   muted: { ...Typography.bodySmall, color: Colors.textMuted, textAlign: 'center' },

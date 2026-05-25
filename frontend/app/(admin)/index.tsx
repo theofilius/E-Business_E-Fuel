@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
+import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import api from '../../services/api';
@@ -176,9 +176,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.md,
     marginBottom: Spacing.xl,
+    flexWrap: 'wrap',
   },
   statCard: {
     flex: 1,
+    minWidth: 180,
     padding: Spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
@@ -199,9 +201,11 @@ const styles = StyleSheet.create({
   contentRow: {
     flexDirection: 'row',
     gap: Spacing.xl,
+    flexWrap: 'wrap',
   },
   colHalf: {
     flex: 1,
+    minWidth: 300,
   },
   sectionHeader: {
     flexDirection: 'row',

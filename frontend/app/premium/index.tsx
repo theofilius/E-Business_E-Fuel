@@ -23,8 +23,6 @@ const PLANS = [
   { id: '1_tahun', label: '1 Tahun', price: 449900, badge: 'NEW' },
 ] as const;
 
-type PlanId = (typeof PLANS)[number]['id'];
-
 const BENEFITS = [
   'Gratis Ongkir pembelian 10L+',
   'Hemat hingga Rp300/L setiap pembelian',
@@ -127,6 +125,7 @@ export default function PremiumPage() {
             <PlanCard
               key={plan.id}
               plan={plan}
+              compact={!isDesktop}
               onSelect={() => handleSelectPlan(plan)}
             />
           ))}
@@ -146,42 +145,44 @@ export default function PremiumPage() {
           praktis.
         </Text>
 
-        <View style={[styles.benefitTable, isDesktop && styles.benefitTableDesktop]}>
-          {/* Header */}
-          <View style={styles.benefitHeaderRow}>
-            <Text style={[styles.benefitCell, styles.benefitHeaderLabel]}>Benefit</Text>
-            <Text style={[styles.benefitCellCenter, styles.benefitHeaderLabel]}>
-              E-Fuel Basic
-            </Text>
-            <View style={[styles.benefitCellCenter, styles.premiumHeaderCell]}>
-              <View style={styles.premiumHeaderBadge}>
-                <View style={styles.premiumHeaderLogoCircle}>
-                  <Text style={styles.premiumHeaderLogoE}>E</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.benefitScroll}>
+          <View style={[styles.benefitTable, isDesktop && styles.benefitTableDesktop]}>
+            {/* Header */}
+            <View style={styles.benefitHeaderRow}>
+              <Text style={[styles.benefitCell, styles.benefitHeaderLabel]}>Benefit</Text>
+              <Text style={[styles.benefitCellCenter, styles.benefitHeaderLabel]}>
+                E-Fuel Basic
+              </Text>
+              <View style={[styles.benefitCellCenter, styles.premiumHeaderCell]}>
+                <View style={styles.premiumHeaderBadge}>
+                  <View style={styles.premiumHeaderLogoCircle}>
+                    <Text style={styles.premiumHeaderLogoE}>E</Text>
+                  </View>
+                  <Text style={styles.premiumHeaderText}>PREMIUM</Text>
                 </View>
-                <Text style={styles.premiumHeaderText}>PREMIUM</Text>
               </View>
             </View>
-          </View>
 
-          {/* Rows */}
-          {BENEFITS.map((benefit, index) => (
-            <View
-              key={benefit}
-              style={[
-                styles.benefitRow,
-                index % 2 === 0 && styles.benefitRowEven,
-              ]}
-            >
-              <Text style={[styles.benefitCell, styles.benefitRowLabel]}>{benefit}</Text>
-              <View style={styles.benefitCellCenter}>
-                <Text style={styles.benefitMinus}>—</Text>
+            {/* Rows */}
+            {BENEFITS.map((benefit, index) => (
+              <View
+                key={benefit}
+                style={[
+                  styles.benefitRow,
+                  index % 2 === 0 && styles.benefitRowEven,
+                ]}
+              >
+                <Text style={[styles.benefitCell, styles.benefitRowLabel]}>{benefit}</Text>
+                <View style={styles.benefitCellCenter}>
+                  <Text style={styles.benefitMinus}>—</Text>
+                </View>
+                <View style={[styles.benefitCellCenter, styles.premiumBenefitCell]}>
+                  <Ionicons name="checkmark" size={18} color={Colors.primary} />
+                </View>
               </View>
-              <View style={[styles.benefitCellCenter, styles.premiumBenefitCell]}>
-                <Ionicons name="checkmark" size={18} color={Colors.primary} />
-              </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
       {/* bottom spacer */}
@@ -193,15 +194,17 @@ export default function PremiumPage() {
 // ===== PlanCard sub-component =====
 function PlanCard({
   plan,
+  compact,
   onSelect,
 }: {
   plan: (typeof PLANS)[number];
+  compact: boolean;
   onSelect: () => void;
 }) {
   const isFirst = plan.id === '1_minggu';
 
   return (
-    <View style={[styles.planCard, isFirst && styles.planCardFirst]}>
+    <View style={[styles.planCard, compact && styles.planCardCompact, isFirst && styles.planCardFirst]}>
       {plan.badge && (
         <View
           style={[
@@ -400,6 +403,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     ...Shadows.medium,
   },
+  planCardCompact: {
+    width: '100%',
+    maxWidth: 360,
+  },
   planCardFirst: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
@@ -482,9 +489,13 @@ const styles = StyleSheet.create({
   planTermsFirst: { color: 'rgba(255,255,255,0.6)' },
 
   // Benefit table
+  benefitScroll: {
+    width: '100%',
+  },
   benefitTable: {
     width: '100%',
     maxWidth: 700,
+    minWidth: 560,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: BorderRadius.lg,

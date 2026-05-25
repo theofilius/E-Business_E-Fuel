@@ -121,6 +121,16 @@ File ini berisi rangkuman teknis tentang apa yang sudah diimplementasikan (exist
 - `frontend/app/(tabs)/profile.tsx`: menu "Bantuan & Dukungan" navigasi ke `/profile/help`.
 - `frontend/app/_layout.tsx`: register `profile/help`.
 
+#### G. Driver Tracking & Mobile Responsive Pass
+- `frontend/app/driver/tracking/[orderId].tsx` *(baru)*: halaman **Antar Pesanan** untuk driver dengan detail customer, nomor telepon, alamat, BBM, liter, total, catatan, status, tombol Chat, tombol Buka di Maps, dan tombol status berikutnya sampai **Selesai Antar**.
+- Driver dashboard sekarang mengarahkan driver ke `/driver/tracking/[orderId]` setelah tombol **Mulai Berangkat** mengubah status ke `on_the_way`.
+- Halaman tracking driver memakai `driver_location` Socket.IO existing. Jika izin geolocation diberikan, posisi driver dikirim ke room order; jika ditolak, UI menampilkan fallback alamat tujuan tanpa crash.
+- Customer tracking tetap memakai `TrackingMap` existing dan menerima update `driver_location` seperti sebelumnya.
+- Responsive pass dilakukan tanpa rewrite project:
+  - Navbar web menjadi mobile-friendly dengan collapsed menu pada width `<= 768px`.
+  - Landing/order/payment/tracking/chat/profile/premium/refund diberi padding, wrapping, map height, dan image sizing yang aman di layar kecil.
+  - Admin shell berubah menjadi top horizontal menu di mobile; tabel order/refund/analytics memakai horizontal scroll.
+
 ---
 
 ### 🟡 Secondary Gaps (Telah Diperbaiki untuk Demo)

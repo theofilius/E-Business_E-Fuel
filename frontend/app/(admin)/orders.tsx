@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -74,7 +74,8 @@ export default function AdminOrders() {
         {loading && orders.length === 0 ? (
           <View style={styles.center}><ActivityIndicator color={Colors.primary} /></View>
         ) : (
-          <View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.tableMinWidth}>
             <View style={styles.tableHeader}>
               <Text style={[styles.th, { flex: 1.5 }]}>Order ID</Text>
               <Text style={[styles.th, { flex: 2 }]}>Pelanggan</Text>
@@ -118,6 +119,7 @@ export default function AdminOrders() {
               ))
             )}
           </View>
+          </ScrollView>
         )}
       </Card>
     </View>
@@ -168,6 +170,9 @@ const styles = StyleSheet.create({
   tableCard: {
     padding: 0,
     overflow: 'hidden',
+  },
+  tableMinWidth: {
+    minWidth: 920,
   },
   tableHeader: {
     flexDirection: 'row',

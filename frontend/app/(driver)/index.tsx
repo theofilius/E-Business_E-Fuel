@@ -169,7 +169,10 @@ export default function DriverDashboard() {
   const handleAdvance = async (status: OrderStatus) => {
     if (!activeOrder) return;
     try {
-      await updateStatus(activeOrder._id, status);
+      const updated = await updateStatus(activeOrder._id, status);
+      if (status === 'on_the_way') {
+        router.push(`/driver/tracking/${updated._id}` as any);
+      }
     } catch {
       /* error in store */
     }
@@ -234,6 +237,14 @@ export default function DriverDashboard() {
             style={styles.advanceBtn}
           />
         )}
+
+        <TouchableOpacity
+          style={styles.navigationBtn}
+          onPress={() => router.push(`/driver/tracking/${activeOrder._id}` as any)}
+        >
+          <Ionicons name="navigate-circle-outline" size={18} color={Colors.textInverse} />
+          <Text style={styles.navigationBtnText}>Lihat Rute & Detail Antar</Text>
+        </TouchableOpacity>
 
         {/* Chat with customer */}
         <TouchableOpacity
@@ -452,6 +463,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: Spacing.sm,
+    flexWrap: 'wrap',
   },
   activeTitle: { ...Typography.h3, color: Colors.text },
   activeMeta: { ...Typography.caption, color: Colors.textMuted, marginTop: 2 },
@@ -465,6 +478,21 @@ const styles = StyleSheet.create({
   detailValue: { ...Typography.body, color: Colors.text, flex: 1 },
   priceText: { color: Colors.primary, fontWeight: '800' },
   advanceBtn: { marginTop: Spacing.lg, paddingVertical: Spacing.md },
+  navigationBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+    paddingVertical: 11,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+  },
+  navigationBtnText: {
+    ...Typography.bodySmall,
+    color: Colors.textInverse,
+    fontWeight: '800',
+  },
   // Simulation
   simBox: {
     marginTop: Spacing.lg,
@@ -512,6 +540,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: Spacing.sm,
+    flexWrap: 'wrap',
   },
   availFuel: { ...Typography.bodyLarge, fontWeight: '800', color: Colors.text },
   availPrice: { ...Typography.bodyLarge, color: Colors.primary, fontWeight: '800' },
@@ -530,7 +560,7 @@ const styles = StyleSheet.create({
   muted: { ...Typography.bodySmall, color: Colors.textMuted, textAlign: 'center' },
   // History
   historyCard: { padding: Spacing.md, backgroundColor: Colors.surface },
-  historyTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  historyTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   historyFuel: { ...Typography.body, fontWeight: '700', color: Colors.text },
   historyMeta: { ...Typography.caption, color: Colors.textMuted, marginTop: 4 },
 });

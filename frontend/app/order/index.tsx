@@ -49,6 +49,8 @@ export default function OrderScreen() {
   } = useOrderStore();
   const { width } = useWindowDimensions();
   const isDesktop = width > 1024;
+  const isTablet = width <= 768;
+  const isMobile = width <= 480;
 
   const [vehicle, setVehicle] = useState<'motor' | 'mobil'>('motor');
   const [selectedFuel, setSelectedFuel] = useState<FuelType | null>(null);
@@ -208,7 +210,7 @@ export default function OrderScreen() {
         </View>
         <View style={styles.divider} />
 
-        <MapPicker value={location} onChange={applyLocation} height={isDesktop ? 300 : 220} />
+        <MapPicker value={location} onChange={applyLocation} height={isMobile ? 200 : isDesktop ? 300 : 220} />
 
         {gpsHint ? <Text style={styles.gpsHint}>{gpsHint}</Text> : null}
         <Text style={styles.mapHelp}>
@@ -293,7 +295,7 @@ export default function OrderScreen() {
                     setSelectedFuel(fuel.fuelType);
                     setFormError('');
                   }}
-                  style={[styles.fuelItem, active && styles.fuelItemActive]}
+                  style={[styles.fuelItem, isMobile && styles.fuelItemMobile, active && styles.fuelItemActive]}
                 >
                   <View style={[styles.fuelIcon, { backgroundColor: color }]}>
                     <Text style={styles.fuelIconText}>{fuel.ron.replace(/\D/g, '')}</Text>
@@ -411,7 +413,7 @@ export default function OrderScreen() {
 
   // ===== Render: sidebar / summary =====
   const renderSidebar = () => (
-    <View style={styles.sidebar}>
+    <View style={[styles.sidebar, isTablet && styles.sidebarMobile]}>
       <Card style={styles.sidebarCard}>
         <Text style={styles.sidebarLabel}>Metode Pembayaran</Text>
         
@@ -569,7 +571,7 @@ export default function OrderScreen() {
         <View style={{ width: 40 }} />
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.layout, isDesktop && styles.desktopLayout]}>
+        <View style={[styles.layout, isTablet && styles.layoutMobile, isDesktop && styles.desktopLayout]}>
           {renderContent()}
           {renderSidebar()}
         </View>
@@ -588,6 +590,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  layoutMobile: {
+    padding: Spacing.md,
+    gap: Spacing.lg,
+  },
   desktopLayout: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -595,6 +601,7 @@ const styles = StyleSheet.create({
   },
   mainContent: { flex: 2, gap: Spacing.lg },
   sidebar: { flex: 1, gap: Spacing.lg, minWidth: 320 },
+  sidebarMobile: { minWidth: 0, width: '100%' },
   pageTitle: { ...Typography.h2, color: Colors.text },
   pageSubtitle: {
     ...Typography.body,
@@ -685,6 +692,9 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     borderWidth: 2,
     borderColor: Colors.border,
+  },
+  fuelItemMobile: {
+    width: '100%',
   },
   fuelItemActive: { borderColor: Colors.primary, backgroundColor: '#F0FDFA' },
   fuelIcon: {

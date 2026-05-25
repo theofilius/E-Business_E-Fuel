@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/theme';
-import { Card } from '../../components/ui/Card';
 import { refundService } from '../../services/refundService';
 import { RefundRequest, RefundStatus } from '../../types';
 
@@ -183,6 +182,7 @@ export default function AdminRefunds() {
           <Text style={styles.emptyText}>Tidak ada refund request</Text>
         </View>
       ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tableScroll}>
         <View style={styles.tableWrap}>
           {/* Table header */}
           <View style={styles.tableHeader}>
@@ -255,6 +255,7 @@ export default function AdminRefunds() {
             );
           })}
         </View>
+        </ScrollView>
       )}
 
       {/* ── Approve Confirm Modal ── */}
@@ -367,7 +368,11 @@ const styles = StyleSheet.create({
   emptyText: { ...Typography.h3, color: Colors.textMuted },
 
   // Table
+  tableScroll: {
+    width: '100%',
+  },
   tableWrap: {
+    minWidth: 1120,
     backgroundColor: Colors.surface,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,

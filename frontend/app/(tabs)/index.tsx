@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Platform, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from '../../components/ui/Button';
 import { Colors, Typography, Spacing, Shadows, BorderRadius } from '../../constants/theme';
@@ -14,6 +13,8 @@ export default function CustomerLandingScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isDesktop = width > 1024;
+  const isTablet = width <= 768;
+  const isMobile = width <= 480;
   const scrollViewRef = useRef<ScrollView>(null);
 
   const products = [
@@ -44,23 +45,25 @@ export default function CustomerLandingScreen() {
   return (
     <ScrollView ref={scrollViewRef} style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Hero Section */}
-      <View style={[styles.hero, isDesktop && styles.heroDesktop]}>
+      <View style={[styles.hero, isDesktop && styles.heroDesktop, isTablet && styles.heroTablet, isMobile && styles.heroMobile]}>
         <Image source={HERO_IMAGE} style={styles.heroImage} />
         <LinearGradient
           colors={['rgba(15, 23, 42, 0.4)', 'rgba(15, 23, 42, 0.7)']}
-          style={styles.heroOverlay}
+          style={[styles.heroOverlay, isTablet && styles.heroOverlayMobile]}
         >
           <View style={styles.heroContent}>
             <View style={styles.heroMain}>
-              <Text style={styles.heroTitle}>E-FUEL{'\n'}OUT OF FUEL? WE&apos;VE GOT{'\n'}YOU COVERED.</Text>
-              <View style={styles.heroActions}>
+              <Text style={[styles.heroTitle, isTablet && styles.heroTitleTablet, isMobile && styles.heroTitleMobile]}>
+                E-FUEL{'\n'}OUT OF FUEL? WE&apos;VE GOT{'\n'}YOU COVERED.
+              </Text>
+              <View style={[styles.heroActions, isMobile && styles.heroActionsMobile]}>
                 <Button 
                   title="Pesan Sekarang" 
                   onPress={() => router.push('/order')} 
-                  style={styles.heroBtn}
+                  style={isMobile ? StyleSheet.flatten([styles.heroBtn, styles.heroBtnMobile]) : styles.heroBtn}
                 />
                 <TouchableOpacity 
-                  style={styles.outlineBtn}
+                  style={[styles.outlineBtn, isMobile && styles.heroBtnMobile]}
                   onPress={() => scrollViewRef.current?.scrollTo({ y: 550, animated: true })}
                 >
                    <Text style={styles.outlineBtnText}>Lihat Cara Kerja</Text>
@@ -76,7 +79,7 @@ export default function CustomerLandingScreen() {
       </View>
 
       {/* Guide Section */}
-      <View style={styles.guideSection}>
+      <View style={[styles.guideSection, isTablet && styles.sectionMobile]}>
         <Text style={styles.sectionTitle}>Beli Bensin dalam 3 Langkah Mudah</Text>
         <Text style={styles.sectionSubtitle}>Beli bensin online dan kami kirim langsung ke lokasimu dengan proses yang cepat dan praktis.</Text>
         <View style={[styles.stepsContainer, isDesktop && styles.stepsDesktop]}>
@@ -96,7 +99,7 @@ export default function CustomerLandingScreen() {
       </View>
 
       {/* Products Section */}
-      <View style={styles.productsSection}>
+      <View style={[styles.productsSection, isTablet && styles.sectionMobile]}>
          <Text style={styles.sectionTitle}>Pesan Bensin Sekarang</Text>
          <Text style={styles.sectionSubtitle}>Pilih jenis RON yang kamu butuhkan dan tentukan jumlah liter untuk pengiriman ke lokasimu.</Text>
          
@@ -124,7 +127,7 @@ export default function CustomerLandingScreen() {
       </View>
 
       {/* Testimonials */}
-      <View style={styles.testimonialSection}>
+      <View style={[styles.testimonialSection, isTablet && styles.sectionMobile]}>
          <Text style={styles.sectionTitle}>Kata Mereka</Text>
          <View style={[styles.testimonialGrid, isDesktop && styles.testimonialDesktop]}>
             {testimonials.map(t => (
@@ -146,8 +149,8 @@ export default function CustomerLandingScreen() {
       </View>
 
       {/* Footer */}
-      <View style={styles.footer}>
-         <View style={styles.footerTop}>
+      <View style={[styles.footer, isTablet && styles.footerMobile]}>
+         <View style={[styles.footerTop, isTablet && styles.footerTopMobile]}>
             <Text style={styles.footerBrand}>E-FUEL</Text>
             <View style={styles.footerLinks}>
                <Text style={styles.footerLink}>Tentang Kami</Text>
@@ -185,6 +188,15 @@ const styles = StyleSheet.create({
   heroDesktop: {
     height: 500,
   },
+  heroTablet: {
+    width: '94%',
+    height: 430,
+    marginTop: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+  },
+  heroMobile: {
+    height: 390,
+  },
   heroImage: {
     ...StyleSheet.absoluteFillObject,
     width: '100%',
@@ -194,6 +206,9 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     paddingHorizontal: Spacing.huge,
+  },
+  heroOverlayMobile: {
+    paddingHorizontal: Spacing.lg,
   },
   heroContent: {
     flex: 1,
@@ -215,15 +230,32 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '900',
   },
+  heroTitleTablet: {
+    fontSize: 38,
+    lineHeight: 46,
+  },
+  heroTitleMobile: {
+    fontSize: 28,
+    lineHeight: 36,
+  },
   heroActions: {
     flexDirection: 'row',
     gap: Spacing.lg,
+  },
+  heroActionsMobile: {
+    flexDirection: 'column',
+    gap: Spacing.md,
+    width: '100%',
   },
   heroBtn: {
     minWidth: 180,
     height: 50,
     backgroundColor: '#CFFAFE',
     borderRadius: BorderRadius.xl,
+  },
+  heroBtnMobile: {
+    width: '100%',
+    minWidth: 0,
   },
   outlineBtn: {
     minWidth: 180,
@@ -254,6 +286,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.huge,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
+  },
+  sectionMobile: {
+    paddingVertical: Spacing.xxl,
+    paddingHorizontal: Spacing.lg,
   },
   sectionTitle: {
     fontSize: 28,
@@ -425,12 +461,20 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
   },
+  footerMobile: {
+    padding: Spacing.lg,
+  },
   footerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingBottom: Spacing.xl,
     marginBottom: Spacing.xl,
+  },
+  footerTopMobile: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
   },
   footerBrand: {
     fontSize: 18,
@@ -441,6 +485,7 @@ const styles = StyleSheet.create({
   footerLinks: {
     flexDirection: 'row',
     gap: Spacing.xl,
+    flexWrap: 'wrap',
   },
   footerLink: {
     color: Colors.text,
