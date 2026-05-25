@@ -32,7 +32,13 @@ export default function RootLayout() {
     const inDriverGroup = group === '(driver)';
     const inAdminGroup = group === '(admin)';
     const inOrderRoute = group === 'order';
-    const inProtected = inTabsGroup || inDriverGroup || inAdminGroup || inOrderRoute;
+    // const inProtected = (inTabsGroup && segments[1] !== 'area-layanan') || inDriverGroup || inAdminGroup || inOrderRoute;
+    const segmentsArr = segments as string[];
+    const inProtected = (inTabsGroup && segmentsArr[1] !== 'area-layanan' 
+      && segmentsArr[1] !== 'faq' 
+      && segmentsArr[1] !== 'syarat' 
+      && segmentsArr[1] !== 'tentang') 
+      || inDriverGroup || inAdminGroup || inOrderRoute;
 
     if (!token) {
       if (inProtected) router.replace('/(onboarding)');

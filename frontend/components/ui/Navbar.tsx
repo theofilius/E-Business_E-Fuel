@@ -71,13 +71,19 @@ export const Navbar = () => {
                   </Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+              <TouchableOpacity style={styles.navLink} onPress={() => router.push('/tentang' as any)}>
                 <Text style={styles.navLinkText}>Tentang E-FUEL</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.navLink} onPress={() => router.push('/')}>
                 <Text style={styles.navLinkText}>Cara Kerja</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+              <TouchableOpacity 
+                style={styles.navLink} 
+                onPress={() => {
+                  // console.log('AREA LAYANAN PRESSED');
+                  router.push('/area-layanan' as any);
+                }}
+              >
                 <Text style={styles.navLinkText}>Area Layanan</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -88,7 +94,7 @@ export const Navbar = () => {
                   Premium
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.navLink} onPress={() => alert('Segera Hadir')}>
+              <TouchableOpacity style={styles.navLink} onPress={() => router.push('/faq' as any)}>
                 <Text style={styles.navLinkText}>FAQs</Text>
               </TouchableOpacity>
             </>
